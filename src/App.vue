@@ -1,11 +1,10 @@
 <template>
-  <!-- <div class="signOut">
-    <router-view />
-  </div> -->
   <div class="signIn">
     <header class="header">
       <div class="container">
-        <h1 class="header-title">Campus-Web</h1>
+        <h1>
+          <router-link to="/" class="header-title">Campus-Web</router-link>
+        </h1>
         <h2 class="header-subTitle" v-if="userID">
           <span v-text="groupName"></span>
           <span class="header-setting" @click="showMenu = !showMenu">
@@ -13,7 +12,10 @@
           </span>
           <div :class="['header-menu', { show: showMenu }]">
             <ul>
-              <li v-for="item in groupList" :key="item.key">{{ item.name }}</li>
+              <li v-for="item in groupList" :key="item.key">
+                <router-link :to="'/G/' + item.key" v-text="item.name">
+                </router-link>
+              </li>
             </ul>
             <hr />
             <ul>
@@ -28,10 +30,6 @@
     <div class="container">
       <router-view :setPersonalInfo="setPersonalInfo" />
     </div>
-    <!-- <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div> -->
   </div>
 </template>
 
@@ -86,6 +84,7 @@ export default {
   &-title {
     font-size: 2.5rem;
     color: $c_light;
+    text-decoration: none;
   }
   &-subTitle {
     position: relative;

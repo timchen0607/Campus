@@ -9,11 +9,4 @@ export const firebaseConfig = {
   measurementId: "G-4ZX5YS7MYG",
 };
 
-export const groupMap = [
-  "-McwrRH-2lIZDy2l6gXN",
-  "-McwrW_9LQNNTneXu6Da",
-  "-McwrYCNOHxx7KCZAX1J",
-  "-McwrYuCnLaj2x5Mctmc",
-  "-McwrZbB-bludrsqAQkb",
-  "-Mcwr_GkpL8uLuqpCqTK",
-];
+export const groupMap = ["6gXN", "u6Da", "AX1J", "ctmc", "AQkb", "CqTK"];
