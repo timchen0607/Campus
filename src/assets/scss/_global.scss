@@ -1,0 +1,16 @@
+@import "./_variables";
+
+html,
+body {
+  color: $c_dark;
+  font-size: 16px;
+  font-family: $font;
+  background-color: $c_light;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  box-sizing: border-box;
+}
