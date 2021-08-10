@@ -2,31 +2,78 @@
   <div class="signIn">
     <img src="../assets/logo.png" alt="Campus Logo" />
     <div class="signIn-inputgroup">
-      <input type="email" class="signIn-input" v-model="email" />
+      <input type="email" class="signIn-input" v-model="email" ref="email" />
       <p :class="['signIn-placeholder', { 'signIn-active': email }]">
         輸入您的電子郵件
       </p>
     </div>
     <div class="signIn-inputgroup">
-      <input type="password" class="signIn-input" v-model="password" />
+      <input
+        type="password"
+        class="signIn-input"
+        v-model="password"
+        ref="password"
+      />
       <p :class="['signIn-placeholder', { 'signIn-active': password }]">
         輸入您的密碼
       </p>
     </div>
     <p class="signIn-alert" v-if="alert" v-text="alert"></p>
-    <button class="signIn-btn">登入</button>
+    <button class="signIn-btn signIn-btn-locked" v-if="locked">
+      登入中...
+    </button>
+    <button class="signIn-btn" @click="handleSignIn" v-else>
+      登入
+    </button>
   </div>
 </template>
 
 <script>
+import firebase from "firebase/app";
+import "firebase/auth";
+
 export default {
   name: "Home",
   data() {
     return {
-      email: "",
-      password: "",
+      locked: false,
+      email: "a0963573232@gmail.com",
+      password: "000000",
       alert: "",
     };
+  },
+  methods: {
+    handleSignIn() {
+      if (firebase.auth().currentUser) {
+        firebase.auth().signOut();
+        return;
+      }
+      if (this.email.length < 4) {
+        this.alert = "請輸入您的電子郵件!";
+        this.$refs.email.focus();
+        return;
+      }
+      if (this.password.length < 4) {
+        this.alert = "請輸入您的密碼!";
+        this.$refs.password.focus();
+        return;
+      }
+      this.locked = true;
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(this.email, this.password)
+        .then((res) => {
+          this.alert = "";
+          console.log(res.user.email);
+          console.log(res.user.uid);
+        })
+        .catch(() => {
+          this.alert = "登入失敗!帳號密碼錯誤!";
+          this.password = "";
+          this.$refs.password.focus();
+          this.locked = false;
+        });
+    },
   },
 };
 </script>
@@ -90,14 +137,14 @@ export default {
     padding: 0.5rem;
     font-size: 1.5rem;
     color: $c_light;
-    background-color: $c_secondary;
+    background-color: $c_danger;
     border: none;
     border-radius: 10px;
     cursor: pointer;
     outline: none;
-    transition: background-color 0.5s;
-    &:hover {
-      background-color: $c_danger;
+    &-locked {
+      background-color: $c_secondary;
+      cursor: wait;
     }
   }
 }

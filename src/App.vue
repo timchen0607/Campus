@@ -22,9 +22,8 @@
 <script>
 import firebase from "firebase/app";
 import "firebase/analytics";
-import "firebase/auth";
 import "firebase/database";
-import { firebaseConfig, groupMap } from "./assets/config";
+import { firebaseConfig } from "./assets/config";
 
 export default {
   name: "App",
@@ -39,55 +38,20 @@ export default {
   created() {
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
-    this.handleSignIn();
-    firebase
-      .database()
-      .ref()
-      .once("value", (res) => {
-        groupMap.forEach((key) => {
-          if (res.val()[key]["auth"][this.userID] > 0)
-            this.groupList.push({ key: key, name: res.val()[key]["name"] });
-        });
-        this.groupID = this.groupList[0].key;
-        this.groupName = this.groupList[0].name;
-      });
+    // this.handleSignIn();
+    // firebase
+    //   .database()
+    //   .ref()
+    //   .once("value", (res) => {
+    //     groupMap.forEach((key) => {
+    //       if (res.val()[key]["auth"][this.userID] > 0)
+    //         this.groupList.push({ key: key, name: res.val()[key]["name"] });
+    //     });
+    //     this.groupID = this.groupList[0].key;
+    //     this.groupName = this.groupList[0].name;
+    //   });
   },
-  methods: {
-    handleSignIn() {
-      if (firebase.auth().currentUser) {
-        firebase.auth().signOut();
-      } else {
-        var email = "a0963573232@gmail.com";
-        var password = "000000";
-        if (email.length < 4) {
-          alert("Please enter an email address.");
-          return;
-        }
-        if (password.length < 4) {
-          alert("Please enter a password.");
-          return;
-        }
-        // Sign in with email and pass.
-        firebase
-          .auth()
-          .signInWithEmailAndPassword(email, password)
-          .then(() => {
-            console.log("Sign In");
-          })
-          .catch(function(error) {
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            if (errorCode === "auth/wrong-password") {
-              alert("Wrong password.");
-            } else {
-              alert(errorMessage);
-            }
-            console.log(error);
-          });
-      }
-    },
-  },
+  methods: {},
 };
 </script>
 
