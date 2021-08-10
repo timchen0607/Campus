@@ -10,7 +10,7 @@
       </div>
     </header>
     <div class="container">
-      <router-view />
+      <router-view :setPersonalInfo="setPersonalInfo" />
     </div>
     <!-- <div id="nav">
       <router-link to="/">Home</router-link> |
@@ -29,7 +29,8 @@ export default {
   name: "App",
   data() {
     return {
-      userID: "EJahKp2a8ERMWR5wxqAkLGQj7SC3",
+      userID: "",
+      userName: "",
       groupID: "",
       groupName: "",
       groupList: [],
@@ -38,20 +39,17 @@ export default {
   created() {
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
-    // this.handleSignIn();
-    // firebase
-    //   .database()
-    //   .ref()
-    //   .once("value", (res) => {
-    //     groupMap.forEach((key) => {
-    //       if (res.val()[key]["auth"][this.userID] > 0)
-    //         this.groupList.push({ key: key, name: res.val()[key]["name"] });
-    //     });
-    //     this.groupID = this.groupList[0].key;
-    //     this.groupName = this.groupList[0].name;
-    //   });
   },
-  methods: {},
+  methods: {
+    setPersonalInfo(obj) {
+      console.log(obj);
+      this.userID = obj.uid;
+      this.userName = obj.email;
+      this.groupID = obj.groupID;
+      this.groupName = obj.groupName;
+      this.groupList = obj.list;
+    },
+  },
 };
 </script>
 

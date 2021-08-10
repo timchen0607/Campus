@@ -31,6 +31,7 @@
 <script>
 import firebase from "firebase/app";
 import "firebase/auth";
+import { groupMap } from "../assets/config";
 
 export default {
   name: "Home",
@@ -41,6 +42,9 @@ export default {
       password: "000000",
       alert: "",
     };
+  },
+  props: {
+    setPersonalInfo: Function,
   },
   methods: {
     handleSignIn() {
@@ -64,14 +68,28 @@ export default {
         .signInWithEmailAndPassword(this.email, this.password)
         .then((res) => {
           this.alert = "";
-          console.log(res.user.email);
-          console.log(res.user.uid);
+          this.handlePersonalInfo(res.user.email, res.user.uid);
         })
         .catch(() => {
           this.alert = "登入失敗!帳號密碼錯誤!";
           this.password = "";
           this.$refs.password.focus();
           this.locked = false;
+        });
+    },
+    handlePersonalInfo(email, uid) {
+      firebase
+        .database()
+        .ref()
+        .once("value", (res) => {
+          let obj = { uid: uid, email: email, list: [] };
+          groupMap.forEach((key) => {
+            if (res.val()[key]["auth"][uid] > 0)
+              obj.list.push({ key: key, name: res.val()[key]["name"] });
+          });
+          obj.groupID = obj.list[0].key;
+          obj.groupName = obj.list[0].name;
+          this.setPersonalInfo(obj);
         });
     },
   },
