@@ -9,4 +9,30 @@ export const firebaseConfig = {
   measurementId: "G-4ZX5YS7MYG",
 };
 
-export const groupMap = ["6gXN", "u6Da", "AX1J", "ctmc", "AQkb", "CqTK"];
+export const groupMap = {
+  "6gXN": "測試討論區",
+  u6Da: "討論版A",
+  AX1J: "討論版B",
+  ctmc: "討論版C",
+  AQkb: "討論版D",
+  CqTK: "討論版E",
+};
+
+export const getDT = () => {
+  let now = new Date();
+  let mm = ("0" + (now.getMonth() + 1)).slice(-2);
+  let dd = ("0" + now.getDate()).slice(-2);
+  let HH = ("0" + now.getHours()).slice(-2);
+  let MM = ("0" + now.getMinutes()).slice(-2);
+  let SS = ("0" + now.getSeconds()).slice(-2);
+  let timestamp =
+    now.getFullYear() + "/" + mm + "/" + dd + " " + HH + ":" + MM + ":" + SS;
+  return timestamp;
+};
+
+export const sortDT = (arr) => {
+  arr.sort(function(a, b) {
+    return Date.parse(b.timeStamp) - Date.parse(a.timeStamp);
+  });
+  return arr;
+};
