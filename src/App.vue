@@ -48,6 +48,7 @@ export default {
       userName: "",
       groupName: "",
       groupList: [],
+      groupMap: {},
     };
   },
   created() {
@@ -61,10 +62,19 @@ export default {
     setPersonalInfo(obj) {
       this.userID = obj.uid;
       this.groupName = obj.groupName;
-      this.groupList = obj.list;
+      firebase
+        .database()
+        .ref("/group/")
+        .once("value", (res) => {
+          Object.keys(obj.list).forEach((key) => {
+            this.groupMap = res.val();
+            if (obj.list[key] > 0)
+              this.groupList.push({ key: key, name: res.val()[key] });
+          });
+        });
     },
-    setGroupInfo(name) {
-      this.groupName = name;
+    setGroupInfo(gid) {
+      this.groupName = this.groupMap[gid];
     },
   },
 };
@@ -113,7 +123,7 @@ export default {
     color: $c_success;
     background-color: $c_secondary-light;
     border: 1px solid $c_secondary;
-    transform: translateY(-150%);
+    transform: translateY(-200%);
     transition: transform 0.5s;
     hr {
       border: 1px solid $c_secondary;

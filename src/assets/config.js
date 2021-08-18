@@ -9,15 +9,6 @@ export const firebaseConfig = {
   measurementId: "G-4ZX5YS7MYG",
 };
 
-export const groupMap = {
-  "6gXN": "測試討論區",
-  u6Da: "討論版A",
-  AX1J: "討論版B",
-  ctmc: "討論版C",
-  AQkb: "討論版D",
-  CqTK: "討論版E",
-};
-
 export const getDT = () => {
   let now = new Date();
   let mm = ("0" + (now.getMonth() + 1)).slice(-2);

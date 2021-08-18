@@ -32,7 +32,6 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import router from "../router";
-import { groupMap } from "../assets/config";
 
 export default {
   name: "SignIn",
@@ -85,13 +84,9 @@ export default {
         .database()
         .ref("/member/" + uid)
         .once("value", (res) => {
-          let obj = { uid: uid, name: res.val().name, list: [] };
-          Object.keys(res.val().auth).forEach((key) => {
-            if (res.val().auth[key] > 0)
-              obj.list.push({ key: key, name: groupMap[key] });
-          });
+          const obj = { uid: uid, name: res.val().name, list: res.val().auth };
           this.setPersonalInfo(obj);
-          router.replace("/" + obj.list[0].key);
+          router.replace("/" + Object.keys(obj.list)[0]);
         });
     },
   },
