@@ -11,7 +11,11 @@
           <div :class="['header-menu', { show: showMenu }]">
             <ul>
               <li v-for="item in groupList" :key="item.key">
-                <router-link :to="'/' + item.key" v-text="item.name">
+                <router-link
+                  class="group_item"
+                  :to="'/' + item.key"
+                  v-text="item.name"
+                >
                 </router-link>
               </li>
             </ul>
@@ -25,7 +29,7 @@
         </h2>
       </div>
     </header>
-    <div class="container">
+    <div>
       <SignIn v-if="!userID" :setPersonalInfo="setPersonalInfo" />
       <router-view v-else :userID="userID" :setGroupInfo="setGroupInfo" />
     </div>
@@ -125,6 +129,17 @@ export default {
     border: 1px solid $c_secondary;
     transform: translateY(-200%);
     transition: transform 0.5s;
+    .group_item {
+      display: block;
+      padding: 0.5rem;
+      color: $c_dark;
+      border-radius: 6px;
+      text-decoration: none;
+      &.router-link-active {
+        color: $c_light;
+        background-color: $c_primary-dark;
+      }
+    }
     hr {
       border: 1px solid $c_secondary;
     }

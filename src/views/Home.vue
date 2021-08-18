@@ -1,29 +1,48 @@
 <template>
   <div class="home">
-    <div class="list" v-for="item in article" :key="item.key">
-      <div class="list_item">
-        <router-link class="list_link" :to="'/' + groupID + '/' + item.key">
-          <div
-            :class="{
-              list_reply: true,
-              l1: item.reply < 10,
-              l2: item.reply >= 10,
-              l3: item.reply >= 30,
-              l4: item.reply >= 50,
-            }"
-            v-text="item.reply"
-          ></div>
-          <div class="list_main">
-            <div class="list_title" v-text="item.title"></div>
-            <div class="list_subTitle">
-              <span v-text="item.authorName"></span>
-              <span v-text="item.timeStamp"></span>
+    <div class="list">
+      <div v-for="item in articleList" :key="item.key">
+        <div class="list_item">
+          <router-link class="list_link" :to="'/' + groupID + '/' + item.key">
+            <div
+              :class="{
+                list_reply: true,
+                l1: item.reply < 10,
+                l2: item.reply >= 10,
+                l3: item.reply >= 30,
+                l4: item.reply >= 50,
+              }"
+              v-text="item.reply"
+            ></div>
+            <div class="list_main">
+              <div class="list_title" v-text="item.title"></div>
+              <div class="list_subTitle">
+                <span v-text="item.authorName"></span>
+                <span v-text="item.timeStamp"></span>
+              </div>
             </div>
+          </router-link>
+          <div class="list_del" @click="delArticle(item.key)" v-if="auth > 1">
+            &#128465;
           </div>
-        </router-link>
-        <div class="list_del" @click="delArticle(item.key)" v-if="auth > 1">
-          &#128465;
         </div>
+      </div>
+    </div>
+    <div class="article" v-if="articleID" @click="auth = 0">
+      <div class="article_main" @click="auth = 5">
+        {{ auth }}
+        <hr />
+        {{ article }}
+        <div class="article_head" v-text="article.title"></div>
+        <pre class="article_content" v-text="article.content"></pre>
+        <div class="article_comment">
+          <pre
+            v-for="(item, key) in article.comment"
+            :key="key"
+            v-text="item"
+          ></pre>
+        </div>
+        <div class="article_close"></div>
       </div>
     </div>
   </div>
@@ -38,15 +57,19 @@ export default {
   name: "Home",
   data() {
     return {
-      data: null,
-      article: [],
-      logs: [],
+      articleList: [],
+      groupLogs: [],
+      article: {},
+      articleLogs: [],
       auth: 0,
     };
   },
   computed: {
     groupID() {
       return this.userID ? this.$route.params.groupID : null;
+    },
+    articleID() {
+      return this.userID ? this.$route.params.articleID : null;
     },
   },
   props: {
@@ -66,22 +89,27 @@ export default {
         .ref("/article/" + this.groupID)
         .on("value", (res) => this.loadData(res.val()));
     },
+    articleID: async function() {
+      firebase
+        .database()
+        .ref("/article/" + this.groupID + "/" + this.articleID)
+        .on("value", (res) => (this.article = res.val()));
+    },
   },
   methods: {
     loadData(result) {
-      this.article.length = 0;
-      this.logs.length = 0;
+      this.articleList.length = 0;
+      this.groupLogs.length = 0;
       if (!result) return;
-      this.data = JSON.parse(JSON.stringify(result));
       Object.keys(result).forEach((key) => {
         let temp = result[key];
         temp.key = key;
         temp.reply = temp.comment ? Object.keys(temp.comment).length : 0;
         delete temp.comment;
         delete temp.logs;
-        this.article.push(temp);
+        this.articleList.push(temp);
       });
-      this.article = sortDT(this.article);
+      this.articleList = sortDT(this.articleList);
       this.setGroupInfo(this.groupID);
       firebase
         .database()
@@ -104,7 +132,9 @@ export default {
 
 <style lang="scss" scoped>
 @import "../assets/scss/_variables";
-
+.home {
+  position: relative;
+}
 .list {
   max-width: 1000px;
   margin: 0 auto;
@@ -181,6 +211,18 @@ export default {
       color: $c_light;
       background-color: $c_danger;
     }
+  }
+}
+.article {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  &_main {
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
   }
 }
 </style>
