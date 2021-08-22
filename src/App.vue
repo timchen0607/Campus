@@ -92,6 +92,7 @@ export default {
   top: 0;
   padding: 1rem 0.5rem;
   background-color: $c_dark;
+  z-index: 100;
   .container {
     display: flex;
     justify-content: space-between;
@@ -122,7 +123,7 @@ export default {
     position: absolute;
     top: calc(100% + 1.2rem);
     right: 0.5rem;
-    min-width: min(20vw, 155px);
+    min-width: min(30vw, 160px);
     padding: 1rem;
     color: $c_success;
     background-color: $c_secondary-light;

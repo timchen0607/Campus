@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <div class="list">
+    <div class="container list">
       <div v-for="item in articleList" :key="item.key">
         <div class="list_item">
           <router-link class="list_link" :to="'/' + groupID + '/' + item.key">
@@ -28,22 +28,15 @@
         </div>
       </div>
     </div>
-    <div class="article" v-if="articleID" @click="auth = 0">
-      <div class="article_main" @click="auth = 5">
-        {{ auth }}
-        <hr />
-        {{ article }}
-        <div class="article_head" v-text="article.title"></div>
-        <pre class="article_content" v-text="article.content"></pre>
-        <div class="article_comment">
-          <pre
-            v-for="(item, key) in article.comment"
-            :key="key"
-            v-text="item"
-          ></pre>
-        </div>
-        <div class="article_close"></div>
-      </div>
+    <div class="container article" v-if="articleID">
+      <Article
+        :userID="userID"
+        :groupID="groupID"
+        :articleID="articleID"
+        :article="article"
+        :auth="auth"
+        :delArticle="delArticle"
+      />
     </div>
   </div>
 </template>
@@ -51,6 +44,7 @@
 <script>
 import firebase from "firebase/app";
 import "firebase/auth";
+import Article from "./Article.vue";
 import { sortDT } from "../assets/config";
 
 export default {
@@ -77,10 +71,21 @@ export default {
     setGroupInfo: Function,
   },
   created() {
-    firebase
-      .database()
-      .ref("/article/" + this.groupID)
-      .on("value", (res) => this.loadData(res.val()));
+    if (this.groupID) {
+      firebase
+        .database()
+        .ref("/article/" + this.groupID)
+        .on("value", (res) => this.loadData(res.val()));
+    }
+    if (this.articleID) {
+      firebase
+        .database()
+        .ref("/article/" + this.groupID + "/" + this.articleID)
+        .on("value", (res) => (this.article = res.val()));
+    }
+  },
+  components: {
+    Article,
   },
   watch: {
     groupID: async function() {
@@ -134,18 +139,21 @@ export default {
 @import "../assets/scss/_variables";
 .home {
   position: relative;
+  min-height: calc(100vh - 72px);
+  background-color: $c_primary;
 }
 .list {
-  max-width: 1000px;
-  margin: 0 auto;
+  min-height: inherit;
+  padding: min(1rem, 1vw);
+  background-color: $c_light;
   &_item {
     display: flex;
     align-items: center;
-    margin: min(2vw, 1rem) 0;
+    margin-bottom: 0.5rem;
     border-radius: 0.5rem;
     transition: background 0.5s;
     &:hover {
-      background-color: $c_secondary;
+      background-color: $c_secondary-light;
     }
   }
   &_link {
@@ -167,10 +175,10 @@ export default {
       background-color: $c_warning;
     }
     &.l2 {
-      background-color: #f75000;
+      background-color: $c_danger;
     }
     &.l3 {
-      background-color: #bf0060;
+      background-color: $c_danger-dark;
     }
     &.l4 {
       background-color: $c_dark;
@@ -196,7 +204,7 @@ export default {
     padding: min(1.5vw, 0.5rem);
     color: $c_dark;
     font-size: min(3vw, 1rem);
-    background-color: gainsboro;
+    background-color: $c_secondary;
   }
   &_del {
     margin-right: min(2vw, 1rem);
@@ -216,13 +224,10 @@ export default {
 .article {
   position: absolute;
   top: 0;
-  bottom: 0;
   left: 0;
   right: 0;
-  &_main {
-    z-index: 1;
-    max-width: 1000px;
-    margin: 0 auto;
-  }
+  min-height: inherit;
+  padding: min(1rem, 1vw);
+  background-color: $c_light;
 }
 </style>

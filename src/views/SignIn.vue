@@ -86,7 +86,10 @@ export default {
         .once("value", (res) => {
           const obj = { uid: uid, name: res.val().name, list: res.val().auth };
           this.setPersonalInfo(obj);
-          router.replace("/" + Object.keys(obj.list)[0]);
+          const groupID =
+            this.$route.params.groupID || Object.keys(obj.list)[0];
+          const articleID = this.$route.params.articleID || "";
+          router.replace("/" + groupID + "/" + articleID);
         });
     },
   },
