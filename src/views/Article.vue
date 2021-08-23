@@ -1,5 +1,5 @@
 <template>
-  <div class="article">
+  <div class="article" v-if="article">
     <button class="article_back" @click="goArtList">&#8630;返回文章列表</button>
     <h3 class="article_title" v-text="article.title"></h3>
     <h4 class="article_subTitle">
@@ -8,18 +8,32 @@
       <span
         class="article_del"
         @click="delArticle(articleID)"
-        v-if="userID === article.author"
+        v-if="userID === article.author || auth > 1"
       >
         &#128465;
       </span>
     </h4>
     <pre class="article_content" v-text="article.content"></pre>
-    <div class="article_comment">
-      <pre
-        v-for="(item, key) in article.comment"
-        :key="key"
-        v-text="item"
-      ></pre>
+    <div
+      class="article_comment"
+      v-for="(item, key, index) in article.comment"
+      :key="key"
+    >
+      <div class="article_floor" v-text="index + 1 + 'F'"></div>
+      <div class="article_comment_main">
+        <h4 class="article_subTitle">
+          <span v-text="item.authorName"></span>
+          <span v-text="item.timeStamp"></span>
+          <span
+            class="article_del"
+            @click="delArticle(articleID, key)"
+            v-if="userID === item.author || auth > 1"
+          >
+            &#128465;
+          </span>
+        </h4>
+        <pre class="article_content" v-text="item.content"></pre>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +109,24 @@ export default {
     font-size: min(4vw, 1.5rem);
     line-height: min(5vw, 2rem);
     border: 2px solid $c_secondary;
+  }
+  &_comment {
+    display: flex;
+    align-items: stretch;
+    margin-top: 0.3rem;
+    &_main {
+      flex: 1;
+    }
+  }
+  &_floor {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 10vw;
+    max-width: 4rem;
+    margin-right: 0.5rem;
+    font-size: min(4vw, 1.5rem);
+    background-color: $c_secondary-light;
   }
 }
 </style>

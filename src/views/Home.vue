@@ -2,30 +2,25 @@
   <div class="home">
     <div class="container list">
       <div v-for="item in articleList" :key="item.key">
-        <div class="list_item">
-          <router-link class="list_link" :to="'/' + groupID + '/' + item.key">
-            <div
-              :class="{
-                list_reply: true,
-                l1: item.reply < 10,
-                l2: item.reply >= 10,
-                l3: item.reply >= 30,
-                l4: item.reply >= 50,
-              }"
-              v-text="item.reply"
-            ></div>
-            <div class="list_main">
-              <div class="list_title" v-text="item.title"></div>
-              <div class="list_subTitle">
-                <span v-text="item.authorName"></span>
-                <span v-text="item.timeStamp"></span>
-              </div>
+        <router-link class="list_link" :to="'/' + groupID + '/' + item.key">
+          <div
+            :class="{
+              list_reply: true,
+              l1: item.reply < 10,
+              l2: item.reply >= 10,
+              l3: item.reply >= 30,
+              l4: item.reply >= 50,
+            }"
+            v-text="item.reply"
+          ></div>
+          <div class="list_main">
+            <div class="list_title" v-text="item.title"></div>
+            <div class="list_subTitle">
+              <span v-text="item.authorName"></span>
+              <span v-text="item.timeStamp"></span>
             </div>
-          </router-link>
-          <div class="list_del" @click="delArticle(item.key)" v-if="auth > 1">
-            &#128465;
           </div>
-        </div>
+        </router-link>
       </div>
     </div>
     <div class="container article" v-if="articleID">
@@ -44,6 +39,7 @@
 <script>
 import firebase from "firebase/app";
 import "firebase/auth";
+import router from "../router";
 import Article from "./Article.vue";
 import { sortDT } from "../assets/config";
 
@@ -121,15 +117,18 @@ export default {
         .ref("/member/" + this.userID + "/auth/" + this.groupID)
         .on("value", (res) => (this.auth = res.val()));
     },
-    delArticle(key) {
+    delArticle(aID, key = null) {
       const delFlag = confirm("確定要刪除?刪除後無法恢復此資料。");
-      if (delFlag) {
-        firebase
-          .database()
-          .ref("/article/" + this.groupID + "/" + key)
-          .remove();
-        // this.pushLogs("delete");
-      }
+      if (!delFlag) return;
+      let url = "/article/" + this.groupID + "/" + aID;
+      url += key ? "/comment/" + key : "";
+      firebase
+        .database()
+        .ref(url)
+        .remove();
+      // this.pushLogs("delete");
+      if (key) return;
+      router.replace("/" + this.groupID);
     },
   },
 };
@@ -146,22 +145,17 @@ export default {
   min-height: inherit;
   padding: min(1rem, 1vw);
   background-color: $c_light;
-  &_item {
+  &_link {
     display: flex;
     align-items: center;
     margin-bottom: 0.5rem;
+    padding: min(2vw, 1rem);
     border-radius: 0.5rem;
+    text-decoration: none;
     transition: background 0.5s;
     &:hover {
       background-color: $c_secondary-light;
     }
-  }
-  &_link {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    padding: min(2vw, 1rem);
-    text-decoration: none;
   }
   &_reply {
     width: min(15vw, 100px);
