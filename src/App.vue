@@ -1,5 +1,5 @@
 <template>
-  <div class="signIn">
+  <div>
     <header class="header">
       <div class="container">
         <h1 class="header-title">Campus-Web</h1>
@@ -21,7 +21,6 @@
             </ul>
             <hr />
             <ul>
-              <li>Logs</li>
               <li>Setting</li>
               <li>Log Out</li>
             </ul>
