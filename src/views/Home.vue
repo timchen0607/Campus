@@ -89,7 +89,7 @@
             <h4 class="article_subTitle">
               <span v-text="userName"></span>
               <span></span>
-              <span class="article_del">
+              <span class="article_del" @click="newComment">
                 點我送出回覆
               </span>
             </h4>
@@ -208,6 +208,7 @@ export default {
         .ref("/article/" + this.groupID + "/" + this.articleID)
         .on("value", (res) => {
           this.article = res.val();
+          this.newArtComment = "";
           if (!res.val() || !this.article.comment) return;
           let temp = this.article.comment;
           this.article.comment = [];
@@ -224,7 +225,7 @@ export default {
         return;
       }
       if (this.newArtTitle.length > 30 || this.newArtContent.length > 500) {
-        alert("標題或內容超過上限!");
+        alert("標題或內容長度超過上限!");
         return;
       }
       const newArtFlag = confirm("確定要發布?文章發布後不可修改。");
@@ -244,6 +245,31 @@ export default {
       this.newArtShow = false;
       this.newArtTitle = "";
       this.newArtContent = "";
+      // this.pushLogs();
+    },
+    newComment() {
+      if (!this.newArtComment.trim()) {
+        alert("內容不可為空!");
+        return;
+      }
+      if (this.newArtComment.length > 500) {
+        alert("內容長度超過上限!");
+        return;
+      }
+      const newArtFlag = confirm("確定要回覆?回覆後不可修改。");
+      if (!newArtFlag) return;
+      const obj = {
+        author: this.userID,
+        authorName: this.userName,
+        content: this.newArtComment,
+        timeStamp: getDT(),
+        type: "text",
+      };
+      firebase
+        .database()
+        .ref("/article/" + this.groupID + "/" + this.articleID + "/comment")
+        .push(obj);
+      this.newArtComment = "";
       // this.pushLogs();
     },
     delArticle(aID, key = null) {
