@@ -21,8 +21,12 @@
             </ul>
             <hr />
             <ul>
-              <li>Setting</li>
-              <li>Log Out</li>
+              <li>
+                <router-link class="group_item" :to="'/Setting/'">
+                  個人資料
+                </router-link>
+              </li>
+              <li><a href="#" class="group_item" @click="signOut">登出</a></li>
             </ul>
           </div>
         </h2>
@@ -67,6 +71,12 @@ export default {
     SignIn,
   },
   methods: {
+    signOut() {
+      const newArtFlag = confirm("確定要登出嗎?");
+      if (!newArtFlag) return;
+      this.userID = "";
+      firebase.auth().signOut();
+    },
     setPersonalInfo(obj) {
       this.userID = obj.uid;
       this.userName = obj.name;
@@ -74,6 +84,7 @@ export default {
         .database()
         .ref("/group/")
         .once("value", (res) => {
+          this.groupList = [];
           Object.keys(obj.list).forEach((key) => {
             this.groupMap = res.val();
             if (obj.list[key] > 0)
@@ -81,8 +92,12 @@ export default {
           });
         });
     },
-    setGroupInfo(gid) {
-      this.groupName = this.groupMap[gid];
+    setGroupInfo(gid, name = null) {
+      if (name) {
+        this.groupName = name;
+      } else {
+        this.groupName = this.groupMap[gid];
+      }
     },
   },
 };
@@ -140,6 +155,7 @@ export default {
       color: $c_dark;
       border-radius: 6px;
       text-decoration: none;
+      &:hover,
       &.router-link-active {
         color: $c_light;
         background-color: $c_primary-dark;

@@ -9,7 +9,7 @@
         >
           &#8630;返回文章列表
         </button>
-        <button class="controller_btn" v-if="auth > 2">
+        <button class="controller_btn" @click="goLogs" v-if="auth > 2">
           📜使用紀錄
         </button>
         <button
@@ -88,7 +88,6 @@
           <div class="article_comment_main">
             <h4 class="article_subTitle">
               <span v-text="userName"></span>
-              <span></span>
               <span class="article_del" @click="newComment">
                 點我送出回覆
               </span>
@@ -285,6 +284,9 @@ export default {
       if (key) return;
       router.replace("/" + this.groupID);
     },
+    goLogs() {
+      router.push("/Logs/" + this.groupID);
+    },
     goArtList() {
       router.push("/" + this.groupID + "/");
     },
@@ -429,6 +431,7 @@ export default {
 }
 
 .article {
+  padding: min(2vw, 1rem);
   &_back {
     margin-bottom: min(1rem, 1vw);
     padding: 0.3rem 1.5rem;
