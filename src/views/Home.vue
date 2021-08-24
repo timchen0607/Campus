@@ -22,11 +22,17 @@
       </div>
       <div class="newArticle" v-if="(!articleID || !article) && newArtShow">
         <p class="newArticle_label">標題</p>
-        <input type="text" class="newArticle_title" v-model="newArtTitle" />
+        <input
+          type="text"
+          class="newArticle_title"
+          maxlength="30"
+          v-model="newArtTitle"
+        />
         <p class="newArticle_label">內文</p>
         <textarea
           cols="30"
           rows="5"
+          maxlength="500"
           class="newArticle_content"
           v-model="newArtContent"
         ></textarea>
@@ -74,19 +80,45 @@
           </span>
         </h4>
         <pre class="article_content" v-text="article.content"></pre>
+        <div class="article_comment">
+          <div
+            class="article_floor"
+            v-text="article.comment ? article.comment.length + 1 + 'F' : '1F'"
+          ></div>
+          <div class="article_comment_main">
+            <h4 class="article_subTitle">
+              <span v-text="userName"></span>
+              <span></span>
+              <span class="article_del">
+                點我送出回覆
+              </span>
+            </h4>
+            <textarea
+              cols="30"
+              rows="3"
+              maxlength="500"
+              class="article_content new"
+              placeholder="請於此處輸入回覆內容"
+              v-model="newArtComment"
+            ></textarea>
+          </div>
+        </div>
         <div
           class="article_comment"
-          v-for="(item, key, index) in article.comment"
-          :key="key"
+          v-for="(item, index) in article.comment"
+          :key="item.key"
         >
-          <div class="article_floor" v-text="index + 1 + 'F'"></div>
+          <div
+            class="article_floor"
+            v-text="article.comment.length - index + 'F'"
+          ></div>
           <div class="article_comment_main">
             <h4 class="article_subTitle">
               <span v-text="item.authorName"></span>
               <span v-text="item.timeStamp"></span>
               <span
                 class="article_del"
-                @click="delArticle(articleID, key)"
+                @click="delArticle(articleID, item.key)"
                 v-if="userID === item.author || auth > 1"
               >
                 &#128465;
@@ -104,7 +136,7 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import router from "../router";
-import { sortDT } from "../assets/config";
+import { getDT, sortDT } from "../assets/config";
 
 export default {
   name: "Home",
@@ -116,6 +148,7 @@ export default {
       newArtShow: false,
       newArtTitle: "",
       newArtContent: "",
+      newArtComment: "",
     };
   },
   computed: {
@@ -128,58 +161,89 @@ export default {
   },
   props: {
     userID: String,
+    userName: String,
     setGroupInfo: Function,
   },
   created() {
-    if (this.groupID) {
-      firebase
-        .database()
-        .ref("/article/" + this.groupID)
-        .on("value", (res) => this.loadData(res.val()));
-    }
-    if (this.articleID) {
-      firebase
-        .database()
-        .ref("/article/" + this.groupID + "/" + this.articleID)
-        .on("value", (res) => (this.article = res.val()));
-    }
+    if (!this.groupID) return;
+    this.handleGroupID();
+    if (!this.articleID) return;
+    this.handleArticleID();
   },
   watch: {
     groupID: async function() {
-      firebase
-        .database()
-        .ref("/article/" + this.groupID)
-        .on("value", (res) => this.loadData(res.val()));
+      this.handleGroupID();
     },
     articleID: async function() {
-      firebase
-        .database()
-        .ref("/article/" + this.groupID + "/" + this.articleID)
-        .on("value", (res) => (this.article = res.val()));
+      this.handleArticleID();
     },
   },
   methods: {
-    loadData(result) {
-      this.articleList.length = 0;
-      if (!result) return;
-      Object.keys(result).forEach((key) => {
-        let temp = result[key];
-        temp.key = key;
-        temp.reply = temp.comment ? Object.keys(temp.comment).length : 0;
-        delete temp.comment;
-        delete temp.logs;
-        this.articleList.push(temp);
-      });
-      this.articleList = sortDT(this.articleList);
-      this.setGroupInfo(this.groupID);
+    handleGroupID() {
       firebase
         .database()
-        .ref("/member/" + this.userID + "/auth/" + this.groupID)
-        .on("value", (res) => (this.auth = res.val()));
+        .ref("/article/" + this.groupID)
+        .on("value", (res) => {
+          this.articleList.length = 0;
+          this.setGroupInfo(this.groupID);
+          if (!res.val()) return;
+          Object.keys(res.val()).forEach((key) => {
+            let temp = res.val()[key];
+            temp.key = key;
+            temp.reply = temp.comment ? Object.keys(temp.comment).length : 0;
+            delete temp.comment;
+            delete temp.logs;
+            this.articleList.push(temp);
+          });
+          this.articleList = sortDT(this.articleList);
+          firebase
+            .database()
+            .ref("/member/" + this.userID + "/auth/" + this.groupID)
+            .on("value", (res) => (this.auth = res.val()));
+        });
+    },
+    handleArticleID() {
+      firebase
+        .database()
+        .ref("/article/" + this.groupID + "/" + this.articleID)
+        .on("value", (res) => {
+          this.article = res.val();
+          if (!res.val() || !this.article.comment) return;
+          let temp = this.article.comment;
+          this.article.comment = [];
+          Object.keys(temp).forEach((key) => {
+            temp[key].key = key;
+            this.article.comment.unshift(temp[key]);
+          });
+        });
     },
     pushLogs() {},
     newArticle() {
-      console.log(this.newArtTitle, this.newArtContent);
+      if (!this.newArtTitle.trim() || !this.newArtContent.trim()) {
+        alert("標題與內容皆不可為空!");
+        return;
+      }
+      if (this.newArtTitle.length > 30 || this.newArtContent.length > 500) {
+        alert("標題或內容超過上限!");
+        return;
+      }
+      const newArtFlag = confirm("確定要發布?文章發布後不可修改。");
+      if (!newArtFlag) return;
+      const obj = {
+        author: this.userID,
+        authorName: this.userName,
+        content: this.newArtContent,
+        timeStamp: getDT(),
+        title: this.newArtTitle,
+        type: "text",
+      };
+      firebase
+        .database()
+        .ref("/article/" + this.groupID)
+        .push(obj);
+      this.newArtShow = false;
+      this.newArtTitle = "";
+      this.newArtContent = "";
       // this.pushLogs();
     },
     delArticle(aID, key = null) {
@@ -255,6 +319,7 @@ export default {
     background-color: $c_secondary-light;
     border: none;
     border-bottom: 3px solid $c_danger-dark;
+    box-sizing: border-box;
     outline: none;
     resize: none;
   }
@@ -265,6 +330,7 @@ export default {
 }
 
 .list {
+  margin-top: min(2vw, 1rem);
   &_link {
     display: flex;
     align-items: center;
@@ -379,10 +445,17 @@ export default {
     }
   }
   &_content {
+    width: 100%;
     padding: min(1.5vw, 0.5rem);
     font-size: min(4vw, 1.5rem);
     line-height: min(5vw, 2rem);
     border: 2px solid $c_secondary;
+    box-sizing: border-box;
+    resize: none;
+    outline: none;
+    &.new {
+      background-color: $c_secondary-light;
+    }
   }
   &_comment {
     display: flex;

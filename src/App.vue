@@ -30,7 +30,12 @@
     </header>
     <div>
       <SignIn v-if="!userID" :setPersonalInfo="setPersonalInfo" />
-      <router-view v-else :userID="userID" :setGroupInfo="setGroupInfo" />
+      <router-view
+        v-else
+        :userID="userID"
+        :userName="userName"
+        :setGroupInfo="setGroupInfo"
+      />
     </div>
   </div>
 </template>
@@ -64,7 +69,7 @@ export default {
   methods: {
     setPersonalInfo(obj) {
       this.userID = obj.uid;
-      this.groupName = obj.groupName;
+      this.userName = obj.name;
       firebase
         .database()
         .ref("/group/")
