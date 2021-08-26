@@ -38,6 +38,7 @@
         v-else
         :userID="userID"
         :userName="userName"
+        :groupMap="groupMap"
         :setGroupInfo="setGroupInfo"
       />
     </div>

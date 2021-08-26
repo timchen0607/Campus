@@ -157,24 +157,35 @@ export default {
     articleID() {
       return this.userID ? this.$route.params.articleID : null;
     },
+    device() {
+      const deviceList = ["Android", "webOS", "iPhone", "iPad"];
+      return (
+        deviceList.find((e) => navigator.userAgent.match(e)) || "PC/Others"
+      );
+    },
   },
   props: {
     userID: String,
     userName: String,
+    groupMap: Object,
     setGroupInfo: Function,
   },
   created() {
     if (!this.groupID) return;
     this.handleGroupID();
+    this.pushLogs("Home", "View");
     if (!this.articleID) return;
     this.handleArticleID();
+    this.pushLogs(this.articleID, "View");
   },
   watch: {
     groupID: async function() {
       this.handleGroupID();
+      this.pushLogs("Home", "View");
     },
     articleID: async function() {
       this.handleArticleID();
+      this.pushLogs(this.articleID, "View");
     },
   },
   methods: {
@@ -217,7 +228,23 @@ export default {
           });
         });
     },
-    pushLogs() {},
+    pushLogs(page, action) {
+      if (!page || !action) return;
+      const group = ["6gXN", "AQkb", "AX1J", "CqTK", "ctmc", "u6Da"];
+      const obj = {
+        userID: this.userID,
+        userName: this.userName,
+        timeStamp: getDT(),
+        page: page,
+        action: action,
+        device: this.device,
+      };
+      const ref = group.indexOf(this.groupID) >= 0 ? this.groupID : "Error";
+      firebase
+        .database()
+        .ref("/logs/" + ref)
+        .push(obj);
+    },
     newArticle() {
       if (!this.newArtTitle.trim() || !this.newArtContent.trim()) {
         alert("標題與內容皆不可為空!");
@@ -237,14 +264,14 @@ export default {
         title: this.newArtTitle,
         type: "text",
       };
-      firebase
+      const newArt = firebase
         .database()
         .ref("/article/" + this.groupID)
         .push(obj);
       this.newArtShow = false;
       this.newArtTitle = "";
       this.newArtContent = "";
-      // this.pushLogs();
+      this.pushLogs(newArt.key, "Release");
     },
     newComment() {
       if (!this.newArtComment.trim()) {
@@ -264,12 +291,12 @@ export default {
         timeStamp: getDT(),
         type: "text",
       };
-      firebase
+      const newReply = firebase
         .database()
         .ref("/article/" + this.groupID + "/" + this.articleID + "/comment")
         .push(obj);
       this.newArtComment = "";
-      // this.pushLogs();
+      this.pushLogs(this.articleID + "/" + newReply.key, "Reply");
     },
     delArticle(aID, key = null) {
       const delFlag = confirm("確定要刪除?刪除後無法恢復此資料。");
@@ -280,7 +307,8 @@ export default {
         .database()
         .ref(url)
         .remove();
-      // this.pushLogs();
+      const page = key ? this.articleID + "/" + key : this.articleID;
+      this.pushLogs(page, "Delete");
       if (key) return;
       router.replace("/" + this.groupID);
     },
@@ -289,6 +317,12 @@ export default {
     },
     goArtList() {
       router.push("/" + this.groupID + "/");
+    },
+    viewList() {
+      this.pushLogs("Home", "View");
+    },
+    viewArt(page) {
+      this.pushLogs(page, "View");
     },
   },
 };
