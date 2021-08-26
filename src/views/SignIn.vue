@@ -38,8 +38,8 @@ export default {
   data() {
     return {
       locked: false,
-      email: "",
-      password: "",
+      email: "a0963573232@gmail.com",
+      password: "000000",
       alert: "",
     };
   },
@@ -84,7 +84,12 @@ export default {
         .database()
         .ref("/member/" + uid)
         .once("value", (res) => {
-          const obj = { uid: uid, name: res.val().name, list: res.val().auth };
+          const obj = {
+            account: this.email,
+            uid: uid,
+            name: res.val().name,
+            list: res.val().auth,
+          };
           this.setPersonalInfo(obj);
           const groupID =
             this.$route.params.groupID || Object.keys(obj.list)[0];

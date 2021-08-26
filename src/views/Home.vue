@@ -333,7 +333,6 @@ export default {
 <style lang="scss" scoped>
 @import "../assets/scss/_variables";
 .home {
-  position: relative;
   min-height: calc(100vh - 72px);
   background-color: $c_primary;
   .container {

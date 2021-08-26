@@ -36,6 +36,7 @@
       <SignIn v-if="!userID" :setPersonalInfo="setPersonalInfo" />
       <router-view
         v-else
+        :account="account"
         :userID="userID"
         :userName="userName"
         :groupMap="groupMap"
@@ -57,6 +58,7 @@ export default {
   data() {
     return {
       showMenu: false,
+      account: "",
       userID: "",
       userName: "",
       groupName: "",
@@ -79,6 +81,7 @@ export default {
       firebase.auth().signOut();
     },
     setPersonalInfo(obj) {
+      this.account = obj.account;
       this.userID = obj.uid;
       this.userName = obj.name;
       firebase
