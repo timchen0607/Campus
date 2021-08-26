@@ -38,8 +38,8 @@ export default {
   data() {
     return {
       locked: false,
-      email: "a0963573232@gmail.com",
-      password: "000000",
+      email: "",
+      password: "",
       alert: "",
     };
   },

@@ -256,10 +256,14 @@ export default {
       }
       const newArtFlag = confirm("確定要發布?文章發布後不可修改。");
       if (!newArtFlag) return;
+      let content = this.newArtContent;
+      while (content.indexOf("\n\n\n") > -1) {
+        content = content.replaceAll("\n\n\n", "\n\n");
+      }
       const obj = {
         author: this.userID,
         authorName: this.userName,
-        content: this.newArtContent,
+        content: content,
         timeStamp: getDT(),
         title: this.newArtTitle,
         type: "text",
@@ -284,10 +288,14 @@ export default {
       }
       const newArtFlag = confirm("確定要回覆?回覆後不可修改。");
       if (!newArtFlag) return;
+      let content = this.newArtComment;
+      while (content.indexOf("\n\n\n") > -1) {
+        content = content.replaceAll("\n\n\n", "\n\n");
+      }
       const obj = {
         author: this.userID,
         authorName: this.userName,
-        content: this.newArtComment,
+        content: content,
         timeStamp: getDT(),
         type: "text",
       };
@@ -317,12 +325,6 @@ export default {
     },
     goArtList() {
       router.push("/" + this.groupID + "/");
-    },
-    viewList() {
-      this.pushLogs("Home", "View");
-    },
-    viewArt(page) {
-      this.pushLogs(page, "View");
     },
   },
 };
