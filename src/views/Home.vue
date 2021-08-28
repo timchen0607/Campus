@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <div class="container">
+    <div class="container" v-if="showPage">
       <div class="controller" v-if="!articleID || !article">
         <button
           class="controller_btn controller_left"
@@ -128,6 +128,10 @@
         </div>
       </div>
     </div>
+    <div class="container error" v-else>
+      <img src="../assets/loading.png" alt="Campus Loading" />
+      <h3>資料載入中...請稍後...</h3>
+    </div>
   </div>
 </template>
 
@@ -163,6 +167,14 @@ export default {
         deviceList.find((e) => navigator.userAgent.match(e)) || "PC/Others"
       );
     },
+    showPage() {
+      const group = this.groupID ? !!this.groupMap[this.groupID] : false;
+      const article = this.articleID
+        ? !!Object.keys(this.article).length
+        : true;
+      if (this.auth == 0) this.setGroupInfo(0, "");
+      return group && article && this.auth > 0;
+    },
   },
   props: {
     userID: String,
@@ -196,6 +208,10 @@ export default {
         .on("value", (res) => {
           this.articleList.length = 0;
           this.setGroupInfo(this.groupID);
+          firebase
+            .database()
+            .ref("/member/" + this.userID + "/auth/" + this.groupID)
+            .on("value", (res) => (this.auth = res.val()));
           if (!res.val()) return;
           Object.keys(res.val()).forEach((key) => {
             let temp = res.val()[key];
@@ -206,10 +222,6 @@ export default {
             this.articleList.push(temp);
           });
           this.articleList = sortDT(this.articleList);
-          firebase
-            .database()
-            .ref("/member/" + this.userID + "/auth/" + this.groupID)
-            .on("value", (res) => (this.auth = res.val()));
         });
     },
     handleArticleID() {
@@ -217,9 +229,11 @@ export default {
         .database()
         .ref("/article/" + this.groupID + "/" + this.articleID)
         .on("value", (res) => {
-          this.article = res.val();
           this.newArtComment = "";
-          if (!res.val() || !this.article.comment) return;
+          this.article = {};
+          if (!res.val()) return;
+          this.article = res.val();
+          if (!this.article.comment) return;
           let temp = this.article.comment;
           this.article.comment = [];
           Object.keys(temp).forEach((key) => {
@@ -321,7 +335,7 @@ export default {
       router.replace("/" + this.groupID);
     },
     goLogs() {
-      router.push("/Logs/" + this.groupID);
+      router.push("/" + this.groupID + "/Logs");
     },
     goArtList() {
       router.push("/" + this.groupID + "/");
@@ -339,6 +353,10 @@ export default {
     min-height: inherit;
     padding: min(1rem, 1vw);
     background-color: $c_light;
+  }
+  .error {
+    text-align: center;
+    font-size: min(5rem, 10vw);
   }
 }
 

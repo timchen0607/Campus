@@ -22,12 +22,13 @@
 <script>
 import firebase from "firebase/app";
 import "firebase/auth";
+import { sortDT } from "../assets/config";
 
 export default {
   name: "Logs",
   data() {
     return {
-      logList: null,
+      logList: [],
     };
   },
   props: {
@@ -39,7 +40,12 @@ export default {
     firebase
       .database()
       .ref("/logs/" + this.$route.params.groupID)
-      .once("value", (res) => (this.logList = res.val()));
+      .once("value", (res) => {
+        Object.keys(res.val()).forEach((key) =>
+          this.logList.push(res.val()[key])
+        );
+        this.logList = sortDT(this.logList);
+      });
   },
 };
 </script>

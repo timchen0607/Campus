@@ -12,6 +12,7 @@
         type="password"
         class="signIn-input"
         v-model="password"
+        @keyup.enter="handleSignIn"
         ref="password"
       />
       <p :class="['signIn-placeholder', { 'signIn-active': password }]">
@@ -44,9 +45,7 @@ export default {
     };
   },
   props: {
-    userID: String,
     setPersonalInfo: Function,
-    setGroupInfo: Function,
   },
   methods: {
     handleSignIn() {

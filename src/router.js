@@ -15,14 +15,14 @@ const routes = [
     component: Home,
   },
   {
+    path: "/:groupID/Logs",
+    name: "Logs",
+    component: Logs,
+  },
+  {
     path: "/:groupID/:articleID",
     name: "Article",
     component: Home,
-  },
-  {
-    path: "/Logs/:groupID",
-    name: "Logs",
-    component: Logs,
   },
   {
     path: "/Setting",

@@ -97,7 +97,7 @@ export default {
         });
     },
     setGroupInfo(gid, name = null) {
-      if (name) {
+      if (name !== null) {
         this.groupName = name;
       } else {
         this.groupName = this.groupMap[gid];

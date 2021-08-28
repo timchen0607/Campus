@@ -35,7 +35,6 @@
 <script>
 import firebase from "firebase/app";
 import "firebase/auth";
-// import router from "../router";
 
 export default {
   name: "Setting",
@@ -51,6 +50,10 @@ export default {
   props: {
     account: String,
     userName: String,
+    setGroupInfo: Function,
+  },
+  created() {
+    this.setGroupInfo(0, "個人資料");
   },
   methods: {
     handleUpdatePW() {
