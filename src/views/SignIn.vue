@@ -47,6 +47,13 @@ export default {
   props: {
     setPersonalInfo: Function,
   },
+  created() {
+    const user = firebase.auth().currentUser;
+    if (user) {
+      console.log("Success");
+      this.handlePersonalInfo(user.uid);
+    }
+  },
   methods: {
     handleSignIn() {
       if (firebase.auth().currentUser) {
@@ -66,16 +73,21 @@ export default {
       this.locked = true;
       firebase
         .auth()
-        .signInWithEmailAndPassword(this.email, this.password)
-        .then((res) => {
-          this.alert = "";
-          this.handlePersonalInfo(res.user.uid);
-        })
-        .catch(() => {
-          this.alert = "登入失敗!帳號密碼錯誤!";
-          this.password = "";
-          this.$refs.password.focus();
-          this.locked = false;
+        .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        .then(() => {
+          return firebase
+            .auth()
+            .signInWithEmailAndPassword(this.email, this.password)
+            .then((res) => {
+              this.alert = "";
+              this.handlePersonalInfo(res.user.uid);
+            })
+            .catch(() => {
+              this.alert = "登入失敗!帳號密碼錯誤!";
+              this.password = "";
+              this.$refs.password.focus();
+              this.locked = false;
+            });
         });
     },
     handlePersonalInfo(uid) {
