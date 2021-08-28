@@ -1,5 +1,5 @@
 <template>
-  <div class="signIn">
+  <div class="signIn" v-if="showPage">
     <img src="../assets/logo.png" alt="Campus Logo" />
     <div class="signIn-inputgroup">
       <input type="email" class="signIn-input" v-model="email" ref="email" />
@@ -38,6 +38,7 @@ export default {
   name: "SignIn",
   data() {
     return {
+      showPage: false,
       locked: false,
       email: "",
       password: "",
@@ -48,11 +49,10 @@ export default {
     setPersonalInfo: Function,
   },
   created() {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      console.log("Success");
-      this.handlePersonalInfo(user.uid);
-    }
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) this.handlePersonalInfo(user.uid);
+      else this.showPage = true;
+    });
   },
   methods: {
     handleSignIn() {
