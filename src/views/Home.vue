@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="container" v-if="showPage">
-      <div class="controller" v-if="!articleID || !article">
+      <div class="controller" v-if="!Object.keys(article).length">
         <button
           class="controller_btn controller_left"
           v-if="newArtShow"
@@ -20,27 +20,87 @@
           ✍發布文章
         </button>
       </div>
-      <div class="newArticle" v-if="(!articleID || !article) && newArtShow">
-        <p class="newArticle_label">標題</p>
+      <div class="newArticle" v-if="newArtShow">
+        <p class="newArticle_label">標題(必填)</p>
         <input
           type="text"
           class="newArticle_title"
           maxlength="30"
           v-model="newArtTitle"
         />
-        <p class="newArticle_label">內文</p>
+        <p class="newArticle_label">內文(必填)</p>
         <textarea
           cols="30"
-          rows="5"
+          rows="10"
           maxlength="500"
           class="newArticle_content"
           v-model="newArtContent"
         ></textarea>
+        <p class="newArticle_label">上傳圖片(非必要，上限8張)</p>
+        <input
+          type="file"
+          class="newArticle_title"
+          multiple="multiple"
+          accept="image/*"
+        />
+        <p class="newArticle_label">圖片預覽</p>
+        <div class="newArticle_lightBoxList">
+          <a href="#pic01">
+            <img src="../assets/loading.png" />
+          </a>
+          <a href="#pic02">
+            <img src="../assets/logo.png" />
+          </a>
+          <a href="#pic03">
+            <img src="https://upload.cc/i1/2019/11/09/fogIDC.png" />
+          </a>
+          <a href="#pic04">
+            <img src="https://upload.cc/i1/2019/11/09/ZU0vln.png" />
+          </a>
+          <a href="#pic05">
+            <img src="https://upload.cc/i1/2019/11/09/v2i65J.png" />
+          </a>
+          <a href="#pic06">
+            <img src="https://upload.cc/i1/2019/11/09/EB69Xj.png" />
+          </a>
+          <a href="#pic07">
+            <img src="https://upload.cc/i1/2019/11/09/Rn1Zji.png" />
+          </a>
+          <a href="#pic08">
+            <img src="https://upload.cc/i1/2019/11/09/H1zVUS.png" />
+          </a>
+        </div>
+        <div class="newArticle_lightBoxImg">
+          <a href="#" id="pic01">
+            <img src="../assets/loading.png" />
+          </a>
+          <a href="#" id="pic02">
+            <img src="../assets/logo.png" />
+          </a>
+          <a href="#" id="pic03">
+            <img src="https://upload.cc/i1/2019/11/09/fogIDC.png" />
+          </a>
+          <a href="#" id="pic04">
+            <img src="https://upload.cc/i1/2019/11/09/ZU0vln.png" />
+          </a>
+          <a href="#" id="pic05">
+            <img src="https://upload.cc/i1/2019/11/09/v2i65J.png" />
+          </a>
+          <a href="#" id="pic06">
+            <img src="https://upload.cc/i1/2019/11/09/EB69Xj.png" />
+          </a>
+          <a href="#" id="pic07">
+            <img src="https://upload.cc/i1/2019/11/09/Rn1Zji.png" />
+          </a>
+          <a href="#" id="pic08">
+            <img src="https://upload.cc/i1/2019/11/09/H1zVUS.png" />
+          </a>
+        </div>
         <button class="controller_btn newArticle_btn" @click="newArticle">
           發布
         </button>
       </div>
-      <div class="list" v-if="!articleID || !article">
+      <div class="list" v-if="!Object.keys(article).length && !newArtShow">
         <div v-for="item in articleList" :key="item.key">
           <router-link class="list_link" :to="'/' + groupID + '/' + item.key">
             <div
@@ -63,7 +123,7 @@
           </router-link>
         </div>
       </div>
-      <div class="article" v-if="articleID && article">
+      <div class="article" v-if="!!Object.keys(article).length && !newArtShow">
         <button class="article_back" @click="goArtList">
           &#8630;返回文章列表
         </button>
@@ -346,6 +406,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "../assets/scss/_variables";
+
 .home {
   min-height: calc(100vh - 72px);
   background-color: $c_primary;
@@ -403,6 +464,52 @@ export default {
     box-sizing: border-box;
     outline: none;
     resize: none;
+  }
+  &_lightBoxList {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    & > a {
+      width: 150px;
+      height: 150px;
+      display: block;
+      padding: 0.5rem;
+      box-sizing: border-box;
+      & > img {
+        width: 100%;
+        height: 100%;
+        object-position: center center;
+        object-fit: cover;
+      }
+      &:hover {
+        background-color: $c_secondary-light;
+      }
+    }
+  }
+  &_lightBoxImg > a {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #00000066;
+    z-index: -1;
+    transition: opacity 0.5s;
+    opacity: 0;
+    &:target {
+      z-index: 101;
+      opacity: 1;
+    }
+    & > img {
+      max-width: 100%;
+      max-height: 100%;
+      object-position: center center;
+      object-fit: contain;
+    }
   }
   &_btn {
     min-width: 150px;
