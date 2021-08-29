@@ -1,5 +1,6 @@
 <template>
-  <div class="home">
+  AAA
+  <div class="home" v-if="false">
     <div class="container" v-if="showPage">
       <div class="controller" v-if="!Object.keys(article).length">
         <button

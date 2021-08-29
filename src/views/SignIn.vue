@@ -1,10 +1,10 @@
 <template>
-  <div class="signIn" v-if="showPage">
+  <div class="signIn">
     <img src="../assets/logo.png" alt="Campus Logo" />
     <div class="signIn-inputgroup">
       <input type="email" class="signIn-input" v-model="email" ref="email" />
       <p :class="['signIn-placeholder', { 'signIn-active': email }]">
-        輸入您的電子郵件
+        輸入您的學號
       </p>
     </div>
     <div class="signIn-inputgroup">
@@ -18,6 +18,10 @@
       <p :class="['signIn-placeholder', { 'signIn-active': password }]">
         輸入您的密碼
       </p>
+    </div>
+    <div class="signIn-inputgroup">
+      <input type="checkbox" v-model="keepOn" id="keepOn" />
+      <label for="keepOn">保持登入狀態(請勿在公用電腦使用)</label>
     </div>
     <p class="signIn-alert" v-if="alert" v-text="alert"></p>
     <button class="signIn-btn signIn-btn-locked" v-if="locked">
@@ -38,72 +42,87 @@ export default {
   name: "SignIn",
   data() {
     return {
-      showPage: false,
-      locked: false,
-      email: "",
-      password: "",
-      alert: "",
+      alert: "", // 錯誤提示
+      signInCount: 0, //登入次數
+      locked: false, // 鎖定登入按鈕
+      email: "", // 會員信箱
+      password: "", // 會員密碼
+      keepOn: false,
+      FA: firebase.auth(),
     };
   },
-  props: {
-    setPersonalInfo: Function,
+  computed: {
+    FAP() {
+      return this.keepOn
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+    },
   },
+  props: { handlerData: Function },
   created() {
-    firebase.auth().onAuthStateChanged((user) => {
+    this.FA.onAuthStateChanged((user) => {
       if (user) this.handlePersonalInfo(user.uid);
-      else this.showPage = true;
     });
   },
   methods: {
     handleSignIn() {
-      if (firebase.auth().currentUser) {
-        firebase.auth().signOut();
+      if (this.FA.currentUser) {
+        this.FA.signOut();
         return;
       }
-      if (this.email.length < 4) {
-        this.alert = "請輸入您的電子郵件!";
+      if (this.signInCount > 5) {
+        this.alert = "登入失敗!無此帳號或密碼錯誤!";
+        this.password = "";
+        this.$refs.password.focus();
+        this.locked = false;
+        return;
+      }
+      if (this.email.length < 6) {
+        this.alert = "請輸入您的學號!";
         this.$refs.email.focus();
         return;
       }
-      if (this.password.length < 4) {
+      if (this.password.length < 6) {
         this.alert = "請輸入您的密碼!";
         this.$refs.password.focus();
         return;
       }
+      if (this.email.indexOf("@") < 0) this.email += "@gm.nfu.edu.tw";
       this.locked = true;
-      firebase
-        .auth()
-        .setPersistence(firebase.auth.Auth.Persistence.SESSION)
-        .then(() => {
-          return firebase
-            .auth()
-            .signInWithEmailAndPassword(this.email, this.password)
-            .then((res) => {
-              this.alert = "";
-              this.handlePersonalInfo(res.user.uid);
-            })
-            .catch(() => {
-              this.alert = "登入失敗!帳號密碼錯誤!";
-              this.password = "";
-              this.$refs.password.focus();
-              this.locked = false;
-            });
-        });
+      this.signInCount += 1;
+      this.FA.setPersistence(this.FAP).then(() => {
+        return this.FA.signInWithEmailAndPassword(this.email, this.password)
+          .then((res) => this.handlePersonalInfo(res.user.uid))
+          .catch(() => {
+            this.alert = "登入失敗!無此帳號或密碼錯誤!";
+            this.password = "";
+            this.$refs.password.focus();
+            this.locked = false;
+          });
+      });
     },
     handlePersonalInfo(uid) {
+      this.alert = "";
+      this.locked = true;
       firebase
         .database()
         .ref("/member/" + uid)
         .once("value", (res) => {
-          const obj = {
-            account: this.email,
-            uid: uid,
-            name: res.val().name,
-            list: res.val().auth,
-          };
-          this.setPersonalInfo(obj);
-          const groupID =
-            this.$route.params.groupID || Object.keys(obj.list)[0];
+          const auth = res.val().auth;
+          this.handlerData("userID", uid);
+          this.handlerData("account", this.email);
+          this.handlerData("userName", res.val().name);
+          firebase
+            .database()
+            .ref("/group/")
+            .once("value", (r) => {
+              const temp = [];
+              Object.keys(auth).forEach((key) => {
+                if (auth[key] > 0) temp.push({ key: key, name: r.val()[key] });
+              });
+              this.handlerData("groupList", temp);
+            });
+          const groupID = this.$route.params.groupID || Object.keys(auth)[0];
           const articleID = this.$route.params.articleID || "";
           router.replace("/" + groupID + "/" + articleID);
         });
@@ -153,7 +172,7 @@ export default {
     left: 20px;
     padding: 0 10px;
     font-size: 1.1rem;
-    background-color: #fff;
+    background-color: $c_light;
     color: $c_primary;
     z-index: 1;
   }

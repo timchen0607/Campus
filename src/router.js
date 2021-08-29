@@ -1,13 +1,15 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "./views/Home.vue";
-import Logs from "./views/Logs.vue";
+import SignIn from "./views/SignIn.vue";
 import Setting from "./views/Setting.vue";
+import Logs from "./views/Logs.vue";
+import Error from "./views/Error.vue";
 
 const routes = [
   {
     path: "/",
-    name: "Home",
-    component: Home,
+    name: "SignIn",
+    component: SignIn,
   },
   {
     path: "/:groupID",
@@ -15,19 +17,24 @@ const routes = [
     component: Home,
   },
   {
-    path: "/:groupID/Logs",
-    name: "Logs",
-    component: Logs,
-  },
-  {
     path: "/:groupID/:articleID",
     name: "Article",
     component: Home,
   },
   {
+    path: "/Logs",
+    name: "Logs",
+    component: Logs,
+  },
+  {
     path: "/Setting",
     name: "Setting",
     component: Setting,
+  },
+  {
+    path: "/Error",
+    name: "Error",
+    component: Error,
   },
 ];
 
