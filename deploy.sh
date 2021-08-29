@@ -9,6 +9,6 @@ git init #因為 dist 資料夾預設被忽略，因此進行初始化
 git add -A
 git commit -m 'deploy'
 # 部署到 github 分支為 gh-pages
-git push -f https://github.com/timchen0607/Campus-Web.git master:gh-pages
+git push -f https://github.com/timchen0607/Campus.git master:gh-pages
 
 cd -

@@ -14,4 +14,4 @@
 
 ### 成果展示
 
-- https://timchen0607.github.io/Campus-Web/
+- https://timchen0607.github.io/Campus/
