@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "./views/Home.vue";
+import newArticle from "./views/newArticle.vue";
 import SignIn from "./views/SignIn.vue";
 import Setting from "./views/Setting.vue";
 import Logs from "./views/Logs.vue";
@@ -15,6 +16,11 @@ const routes = [
     path: "/:groupID",
     name: "Group",
     component: Home,
+  },
+  {
+    path: "/:groupID/newArticle",
+    name: "newArticle",
+    component: newArticle,
   },
   {
     path: "/:groupID/:articleID",

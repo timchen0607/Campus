@@ -23,12 +23,12 @@
           <hr />
           <ul>
             <li>
-              <router-link class="header-menu-item" :to="'/Setting'">
+              <router-link class="header-menu-item" to="/Setting">
                 <i class="icofont-user-alt-2"></i>個人資料
               </router-link>
             </li>
             <li v-if="activeAuth > 2">
-              <router-link class="header-menu-item" :to="'/Logs'">
+              <router-link class="header-menu-item" to="/Logs">
                 <i class="icofont-paper"></i>使用紀錄
               </router-link>
             </li>

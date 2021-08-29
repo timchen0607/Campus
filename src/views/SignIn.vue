@@ -1,5 +1,5 @@
 <template>
-  <div class="signIn">
+  <div class="signIn" v-if="!loading">
     <img src="../assets/logo.png" alt="Campus Logo" />
     <div class="signIn-inputgroup">
       <input type="email" class="signIn-input" v-model="email" ref="email" />
@@ -42,12 +42,14 @@ export default {
   name: "SignIn",
   data() {
     return {
+      loading: false,
+      email: "", // 會員信箱
+      password: "", // 會員密碼
+      keepOn: false, // 保持登入狀態
       alert: "", // 錯誤提示
       signInCount: 0, //登入次數
       locked: false, // 鎖定登入按鈕
-      email: "", // 會員信箱
-      password: "", // 會員密碼
-      keepOn: false,
+      prevRoute: null,
       FA: firebase.auth(),
     };
   },
@@ -102,6 +104,7 @@ export default {
       });
     },
     handlePersonalInfo(uid) {
+      this.loading = true;
       this.alert = "";
       this.locked = true;
       firebase
@@ -121,12 +124,19 @@ export default {
                 if (auth[key] > 0) temp.push({ key: key, name: r.val()[key] });
               });
               this.handlerData("groupList", temp);
+              if (this.prevRoute.path !== "/") {
+                router.replace(this.prevRoute);
+              } else {
+                router.replace("/" + Object.keys(auth)[0]);
+              }
             });
-          const groupID = this.$route.params.groupID || Object.keys(auth)[0];
-          const articleID = this.$route.params.articleID || "";
-          router.replace("/" + groupID + "/" + articleID);
         });
     },
+  },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.prevRoute = from;
+    });
   },
 };
 </script>

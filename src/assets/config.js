@@ -1,3 +1,6 @@
+import firebase from "firebase/app";
+import router from "../router";
+
 export const firebaseConfig = {
   apiKey: "AIzaSyDtYB7XthyeF9hIlrfXiMKf9bQMOPqVX9U",
   authDomain: "campus-f09a1.firebaseapp.com",
@@ -8,6 +11,19 @@ export const firebaseConfig = {
   appId: "1:916588820563:web:addd06471b111a90232ea6",
   measurementId: "G-4ZX5YS7MYG",
 };
+
+export const userCheck = (uid) => {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (!uid || !user) router.replace("/");
+  });
+};
+
+export const groupCheck = (aid, gList) => {
+  const flag = gList.find((x) => x.key === aid);
+  if (!flag) router.replace("/Error");
+};
+
+export const articleCheck = () => {};
 
 export const getDT = () => {
   let now = new Date();

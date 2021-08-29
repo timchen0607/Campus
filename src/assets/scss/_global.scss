@@ -13,3 +13,31 @@ body {
   margin: auto;
   box-sizing: border-box;
 }
+
+.main {
+  min-height: calc(100vh - 72px);
+  background-color: $c_primary;
+  .container {
+    min-height: inherit;
+    padding: min(1rem, 1vw);
+    background-color: $c_light;
+  }
+}
+
+@keyframes loading {
+  to {
+    background-position: -20%;
+  }
+}
+.skeleton {
+  background: linear-gradient(
+      110deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.5) 50%,
+      transparent 60%
+    )
+    #ededed;
+  background-size: 200% 100%;
+  background-position: 120%;
+  animation: 1s loading ease-in-out infinite;
+}

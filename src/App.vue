@@ -10,6 +10,8 @@
     :userID="userID"
     :account="account"
     :userName="userName"
+    :activeAuth="activeAuth"
+    :groupList="groupList"
     :setGroupInfo="setGroupInfo"
     :handlerData="handlerData"
   />
