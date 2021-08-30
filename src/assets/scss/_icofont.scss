@@ -31,32 +31,44 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.icofont-check:before {
-  content: "\eed8";
+.icofont-swoosh-left:before {
+  content: "\eac3";
 }
 
-.icofont-close:before {
-  content: "\eee4";
+.icofont-swoosh-right:before {
+  content: "\eac4";
 }
 
-.icofont-pencil-alt-5:before {
-  content: "\eae8";
+.icofont-login:before {
+  content: "\ef7b";
 }
 
 .icofont-logout:before {
   content: "\ef7c";
 }
 
+.icofont-history:before {
+  content: "\ef46";
+}
+
+.icofont-error:before {
+  content: "\ef16";
+}
+
+.icofont-ban:before {
+  content: "\eead";
+}
+
+.icofont-check:before {
+  content: "\eed8";
+}
+
+.icofont-pencil-alt-5:before {
+  content: "\eae8";
+}
+
 .icofont-gear:before {
   content: "\ef3a";
-}
-
-.icofont-user-alt-2:before {
-  content: "\ecfc";
-}
-
-.icofont-paper:before {
-  content: "\eae5";
 }
 
 .icofont-thumbs-up:before {
@@ -67,8 +79,12 @@
   content: "\ec53";
 }
 
-.icofont-ban:before {
-  content: "\eead";
+.icofont-user-alt-2:before {
+  content: "\ecfc";
+}
+
+.icofont-paper:before {
+  content: "\eae5";
 }
 
 .icofont-xs {

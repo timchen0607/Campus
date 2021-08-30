@@ -1,5 +1,4 @@
 import firebase from "firebase/app";
-import router from "../router";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyDtYB7XthyeF9hIlrfXiMKf9bQMOPqVX9U",
@@ -13,17 +12,42 @@ export const firebaseConfig = {
 };
 
 export const userCheck = (uid) => {
-  firebase.auth().onAuthStateChanged((user) => {
-    if (!uid || !user) router.replace("/");
+  return new Promise((resolve, reject) => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!uid || !user) reject("/");
+      else resolve();
+    });
   });
 };
 
 export const groupCheck = (aid, gList) => {
-  const flag = gList.find((x) => x.key === aid);
-  if (!flag) router.replace("/Error");
+  return new Promise((resolve, reject) => {
+    const auth = gList.find((x) => x.key === aid);
+    if (!auth) reject("/Error");
+    else resolve(auth);
+  });
 };
 
 export const articleCheck = () => {};
+
+export const getFD = (path) => {
+  return new Promise((resolve) => {
+    firebase
+      .database()
+      .ref(path)
+      .once("value", (res) => resolve(res.val()));
+  });
+};
+
+export const setFD = (path, obj) => {
+  return new Promise((resolve) => {
+    const res = firebase
+      .database()
+      .ref(path)
+      .push(obj);
+    resolve(res);
+  });
+};
 
 export const getDT = () => {
   let now = new Date();

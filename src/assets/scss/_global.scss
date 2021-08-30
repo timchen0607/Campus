@@ -24,6 +24,37 @@ body {
   }
 }
 
+.btn {
+  display: inline-block;
+  padding: 0.6rem 2rem 0.4rem;
+  font-size: min(1.2rem, 3vw);
+  color: $c_dark;
+  background-color: $c_secondary-light;
+  text-decoration: none;
+  border: none;
+  border-bottom: 3px solid $c_danger-dark;
+  outline: none;
+  cursor: pointer;
+  transition: background-color 0.5s;
+  &:hover {
+    color: $c_light;
+    background-color: $c_danger-dark;
+  }
+  &.active {
+    color: $c_light;
+    background-color: $c_danger-dark;
+  }
+  &.locked {
+    background-color: $c_secondary;
+    border-color: $c_secondary;
+    cursor: wait;
+    &:hover {
+      color: $c_dark;
+      background-color: $c_secondary;
+    }
+  }
+}
+
 @keyframes loading {
   to {
     background-position: -20%;

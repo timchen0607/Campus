@@ -24,12 +24,8 @@
       <label for="keepOn">保持登入狀態(請勿在公用電腦使用)</label>
     </div>
     <p class="signIn-alert" v-if="alert" v-text="alert"></p>
-    <button class="signIn-btn signIn-btn-locked" v-if="locked">
-      登入中...
-    </button>
-    <button class="signIn-btn" @click="handleSignIn" v-else>
-      登入
-    </button>
+    <button class="btn locked" v-if="locked">登入中...</button>
+    <button class="btn" @click="handleSignIn" v-else>登入</button>
   </div>
 </template>
 
@@ -37,6 +33,7 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import router from "../router";
+import { getFD } from "../assets/config";
 
 export default {
   name: "SignIn",
@@ -107,29 +104,27 @@ export default {
       this.loading = true;
       this.alert = "";
       this.locked = true;
-      firebase
-        .database()
-        .ref("/member/" + uid)
-        .once("value", (res) => {
-          const auth = res.val().auth;
+      let auth = null;
+      getFD("/member/" + uid)
+        .then((res) => {
           this.handlerData("userID", uid);
           this.handlerData("account", this.email);
-          this.handlerData("userName", res.val().name);
-          firebase
-            .database()
-            .ref("/group/")
-            .once("value", (r) => {
-              const temp = [];
-              Object.keys(auth).forEach((key) => {
-                if (auth[key] > 0) temp.push({ key: key, name: r.val()[key] });
-              });
-              this.handlerData("groupList", temp);
-              if (this.prevRoute.path !== "/") {
-                router.replace(this.prevRoute);
-              } else {
-                router.replace("/" + Object.keys(auth)[0]);
-              }
-            });
+          this.handlerData("userName", res.name);
+          auth = res.auth;
+          return getFD("/group/");
+        })
+        .then((res) => {
+          const temp = [];
+          Object.keys(auth).forEach((key) => {
+            if (auth[key] > 0)
+              temp.push({ key: key, name: res[key], auth: auth[key] });
+          });
+          this.handlerData("groupList", temp);
+          if (this.prevRoute.path !== "/") {
+            router.replace(this.prevRoute);
+          } else {
+            router.replace("/" + Object.keys(auth)[0]);
+          }
         });
     },
   },
@@ -193,22 +188,9 @@ export default {
       content: "※";
     }
   }
-  &-btn {
-    display: block;
-    width: min(500px, 90vw);
-    margin: 1rem auto;
-    padding: 0.5rem;
-    font-size: 1.5rem;
-    color: $c_light;
-    background-color: $c_danger;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    outline: none;
-    &-locked {
-      background-color: $c_secondary;
-      cursor: wait;
-    }
+  .btn {
+    width: min(300px, 60vw);
+    margin: 1rem 0;
   }
 }
 </style>

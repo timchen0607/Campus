@@ -137,12 +137,6 @@ export default {
     articleID() {
       return this.userID ? this.$route.params.articleID : null;
     },
-    device() {
-      const deviceList = ["Android", "webOS", "iPhone", "iPad"];
-      return (
-        deviceList.find((e) => navigator.userAgent.match(e)) || "PC/Others"
-      );
-    },
     showPage() {
       const group = this.groupID ? !!this.groupMap[this.groupID] : false;
       const article = this.articleID
@@ -217,55 +211,6 @@ export default {
   //           this.article.comment.unshift(temp[key]);
   //         });
   //       });
-  //   },
-  //   pushLogs(page, action) {
-  //     if (!page || !action) return;
-  //     const group = ["6gXN", "AQkb", "AX1J", "CqTK", "ctmc", "u6Da"];
-  //     const obj = {
-  //       userID: this.userID,
-  //       userName: this.userName,
-  //       timeStamp: getDT(),
-  //       page: page,
-  //       action: action,
-  //       device: this.device,
-  //     };
-  //     const ref = group.indexOf(this.groupID) >= 0 ? this.groupID : "Error";
-  //     firebase
-  //       .database()
-  //       .ref("/logs/" + ref)
-  //       .push(obj);
-  //   },
-  //   newArticle() {
-  //     if (!this.newArtTitle.trim() || !this.newArtContent.trim()) {
-  //       alert("標題與內容皆不可為空!");
-  //       return;
-  //     }
-  //     if (this.newArtTitle.length > 30 || this.newArtContent.length > 500) {
-  //       alert("標題或內容長度超過上限!");
-  //       return;
-  //     }
-  //     const newArtFlag = confirm("確定要發布?文章發布後不可修改。");
-  //     if (!newArtFlag) return;
-  //     let content = this.newArtContent;
-  //     while (content.indexOf("\n\n\n") > -1) {
-  //       content = content.replaceAll("\n\n\n", "\n\n");
-  //     }
-  //     const obj = {
-  //       author: this.userID,
-  //       authorName: this.userName,
-  //       content: content,
-  //       timeStamp: getDT(),
-  //       title: this.newArtTitle,
-  //       type: "text",
-  //     };
-  //     const newArt = firebase
-  //       .database()
-  //       .ref("/article/" + this.groupID)
-  //       .push(obj);
-  //     this.newArtShow = false;
-  //     this.newArtTitle = "";
-  //     this.newArtContent = "";
-  //     this.pushLogs(newArt.key, "Release");
   //   },
   //   newComment() {
   //     if (!this.newArtComment.trim()) {

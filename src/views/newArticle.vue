@@ -13,7 +13,19 @@
         </div>
         <div class="skeleton loading-btn"></div>
       </div>
-      <div class="newArt" v-else>
+      <router-link class="btn" v-if="!loading" :to="'/' + groupID">
+        <i class="icofont-swoosh-left"></i>返回文章列表
+      </router-link>
+      <div class="newArt" v-if="!loading">
+        <p class="newArt-label">文章類型(必填)</p>
+        <div class="newArt-type" v-for="(item, index) in types" :key="index">
+          <span
+            :class="['btn', { active: newArtType === item }]"
+            v-if="index < 2 || activeAuth > 1"
+            @click="newArtType = item"
+            v-text="item"
+          ></span>
+        </div>
         <p class="newArt-label">標題(必填)</p>
         <input
           type="text"
@@ -39,34 +51,34 @@
           multiple="multiple"
           accept="image/*"
         />
-        <p class="newArt-label">圖片預覽</p>
-        <div class="newArt_lightBoxList">
-          <a href="#pic01">
+        <p class="newArt-label">圖片預覽(施工中)</p>
+        <div class="lightBox">
+          <a href="#pic01" class="newArt-thumb">
             <img src="../assets/error.png" />
           </a>
-          <a href="#pic02">
+          <a href="#pic02" class="newArt-thumb">
             <img src="../assets/logo.png" />
           </a>
-          <a href="#pic03">
+          <a href="#pic03" class="newArt-thumb">
             <img src="https://upload.cc/i1/2019/11/09/fogIDC.png" />
           </a>
-          <a href="#pic04">
+          <a href="#pic04" class="newArt-thumb">
             <img src="https://upload.cc/i1/2019/11/09/ZU0vln.png" />
           </a>
-          <a href="#pic05">
+          <a href="#pic05" class="newArt-thumb">
             <img src="https://upload.cc/i1/2019/11/09/v2i65J.png" />
           </a>
-          <a href="#pic06">
+          <a href="#pic06" class="newArt-thumb">
             <img src="https://upload.cc/i1/2019/11/09/EB69Xj.png" />
           </a>
-          <a href="#pic07">
+          <a href="#pic07" class="newArt-thumb">
             <img src="https://upload.cc/i1/2019/11/09/Rn1Zji.png" />
           </a>
-          <a href="#pic08">
+          <a href="#pic08" class="newArt-thumb">
             <img src="https://upload.cc/i1/2019/11/09/H1zVUS.png" />
           </a>
         </div>
-        <div class="newArt_lightBoxImg">
+        <div class="newArt-img">
           <a href="#" id="pic01">
             <img src="../assets/error.png" />
           </a>
@@ -92,36 +104,81 @@
             <img src="https://upload.cc/i1/2019/11/09/H1zVUS.png" />
           </a>
         </div>
-        <button class="controller_btn newArt_btn" @click="newArticle">
-          發布
-        </button>
+        <button class="btn newArt-submit" @click="newArticle">發布</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-// import firebase from "firebase/app";
-import { userCheck, groupCheck } from "../assets/config";
+import router from "../router";
+import { userCheck, groupCheck, setFD, getDT } from "../assets/config";
 
 export default {
   name: "NewArticle",
   data() {
     return {
       loading: true,
+      types: ["請益", "分享", "作業", "公告"],
+      newArtType: "請益", // 新文章類型
       newArtTitle: "", // 新文章標題
       newArtContent: "", // 新文章內容
       limit: 4, // 圖片上限
     };
   },
+  computed: {
+    groupID() {
+      return this.$route.params.groupID;
+    },
+  },
   props: {
     userID: String,
+    userName: String,
+    activeAuth: Number,
     groupList: Array,
+    handlerData: Function,
+    handlerLogs: Function,
   },
   created() {
-    userCheck(this.userID);
-    groupCheck(this.$route.params.groupID, this.groupList);
-    this.loading = false;
+    userCheck(this.userID)
+      .then(() => groupCheck(this.groupID, this.groupList))
+      .then((res) => {
+        this.handlerData("activeAuth", res.auth);
+        this.handlerData("activeGroupName", res.name);
+        this.loading = false;
+      })
+      .catch((path) => router.replace(path));
+  },
+  methods: {
+    newArticle() {
+      if (!this.newArtTitle.trim() || !this.newArtContent.trim()) {
+        alert("標題與內容皆不可為空!");
+        return;
+      }
+      if (this.newArtTitle.length > 30 || this.newArtContent.length > 500) {
+        alert("標題或內容長度超過上限!");
+        return;
+      }
+      const newArtFlag = confirm("確定要發布?文章發布後不可修改。");
+      if (!newArtFlag) return;
+      let content = this.newArtContent;
+      while (content.indexOf("\n\n\n") > -1) {
+        content = content.replaceAll("\n\n\n", "\n\n");
+      }
+      const obj = {
+        author: this.userID,
+        authorName: this.userName,
+        content: content,
+        notify: this.userID,
+        reply: 0,
+        timeStamp: getDT(),
+        title: this.newArtTitle,
+        type: this.newArtType,
+      };
+      setFD("/article/" + this.groupID, obj)
+        .then((res) => this.handlerLogs("Release", this.groupID, res.key))
+        .then(() => router.push("/" + this.groupID));
+    },
   },
 };
 </script>
@@ -155,10 +212,14 @@ export default {
 .newArt {
   max-width: 600px;
   margin: 0 auto;
+  text-align: center;
   &-label {
     margin: min(3vw, 1rem) 0 min(2vw, 0.5rem);
     font-size: min(1.2rem, 3vw);
     text-align-last: left;
+  }
+  &-type {
+    display: inline-block;
   }
   &-input {
     width: 100%;
@@ -171,29 +232,23 @@ export default {
     outline: none;
     resize: none;
   }
-  &_lightBoxList {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    & > a {
-      width: 150px;
-      height: 150px;
-      display: block;
-      padding: 0.5rem;
-      box-sizing: border-box;
-      & > img {
-        width: 100%;
-        height: 100%;
-        object-position: center center;
-        object-fit: cover;
-      }
-      &:hover {
-        background-color: $c_secondary-light;
-      }
+  &-thumb {
+    width: 150px;
+    height: 150px;
+    display: block;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    & > img {
+      width: 100%;
+      height: 100%;
+      object-position: center center;
+      object-fit: cover;
+    }
+    &:hover {
+      background-color: $c_secondary-light;
     }
   }
-  &_lightBoxImg > a {
+  &-img > a {
     position: fixed;
     top: 0;
     left: 0;
@@ -217,9 +272,9 @@ export default {
       object-fit: contain;
     }
   }
-  &_btn {
+  &-submit {
     min-width: 150px;
-    margin-top: min(2vw, 1rem);
+    margin: min(2vw, 1rem) 0;
   }
 }
 .lightBox {
