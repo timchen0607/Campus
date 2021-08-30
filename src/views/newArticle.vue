@@ -104,7 +104,7 @@
             <img src="https://upload.cc/i1/2019/11/09/H1zVUS.png" />
           </a>
         </div>
-        <button class="btn newArt-submit" @click="newArticle">發布</button>
+        <button class="btn newArt-submit" @click="release">發布</button>
       </div>
     </div>
   </div>
@@ -150,7 +150,7 @@ export default {
       .catch((path) => router.replace(path));
   },
   methods: {
-    newArticle() {
+    release() {
       if (!this.newArtTitle.trim() || !this.newArtContent.trim()) {
         alert("標題與內容皆不可為空!");
         return;

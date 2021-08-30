@@ -1,113 +1,69 @@
 <template>
   <div class="home main">
-    <router-link :to="'/' + groupID + '/newArticle'">
-      新增{{ "/" + groupID + "/newArticle" }}
-    </router-link>
-    <!-- <div class="container" v-if="showPage && false">
-      <div class="controller" v-if="!Object.keys(article).length">
-        <button
-          class="controller_btn controller_left"
-          v-if="newArtShow"
-          @click="newArtShow = !newArtShow"
+    <div class="article" v-if="!!Object.keys(article).length && !newArtShow">
+      <button class="article_back" @click="goArtList">
+        &#8630;返回文章列表
+      </button>
+      <h3 class="article_title" v-text="article.title"></h3>
+      <h4 class="article_subTitle">
+        <span v-text="article.authorName"></span>
+        <span v-text="article.timeStamp"></span>
+        <span
+          class="article_del"
+          @click="delArticle(articleID)"
+          v-if="userID === article.author || auth > 1"
         >
-          &#8630;返回文章列表
-        </button>
-        <button
-          class="controller_btn"
-          v-if="!newArtShow"
-          @click="newArtShow = !newArtShow"
-        >
-          ✍發布文章
-        </button>
-      </div>
-      <div class="list" v-if="!Object.keys(article).length && !newArtShow">
-        <div v-for="item in articleList" :key="item.key">
-          <router-link class="list_link" :to="'/' + groupID + '/' + item.key">
-            <div
-              :class="{
-                list_reply: true,
-                l1: item.reply < 10,
-                l2: item.reply >= 10,
-                l3: item.reply >= 30,
-                l4: item.reply >= 50,
-              }"
-              v-text="item.reply"
-            ></div>
-            <div class="list_main">
-              <div class="list_title" v-text="item.title"></div>
-              <div class="list_subTitle">
-                <span v-text="item.authorName"></span>
-                <span v-text="item.timeStamp"></span>
-              </div>
-            </div>
-          </router-link>
-        </div>
-      </div>
-      <div class="article" v-if="!!Object.keys(article).length && !newArtShow">
-        <button class="article_back" @click="goArtList">
-          &#8630;返回文章列表
-        </button>
-        <h3 class="article_title" v-text="article.title"></h3>
-        <h4 class="article_subTitle">
-          <span v-text="article.authorName"></span>
-          <span v-text="article.timeStamp"></span>
-          <span
-            class="article_del"
-            @click="delArticle(articleID)"
-            v-if="userID === article.author || auth > 1"
-          >
-            &#128465;
-          </span>
-        </h4>
-        <pre class="article_content" v-text="article.content"></pre>
-        <div class="article_comment">
-          <div
-            class="article_floor"
-            v-text="article.comment ? article.comment.length + 1 + 'F' : '1F'"
-          ></div>
-          <div class="article_comment_main">
-            <h4 class="article_subTitle">
-              <span v-text="userName"></span>
-              <span class="article_del" @click="newComment">
-                點我送出回覆
-              </span>
-            </h4>
-            <textarea
-              cols="30"
-              rows="3"
-              maxlength="500"
-              class="article_content new"
-              placeholder="請於此處輸入回覆內容"
-              v-model="newArtComment"
-            ></textarea>
-          </div>
-        </div>
+          &#128465;
+        </span>
+      </h4>
+      <pre class="article_content" v-text="article.content"></pre>
+      <div class="article_comment">
         <div
-          class="article_comment"
-          v-for="(item, index) in article.comment"
-          :key="item.key"
-        >
-          <div
-            class="article_floor"
-            v-text="article.comment.length - index + 'F'"
-          ></div>
-          <div class="article_comment_main">
-            <h4 class="article_subTitle">
-              <span v-text="item.authorName"></span>
-              <span v-text="item.timeStamp"></span>
-              <span
-                class="article_del"
-                @click="delArticle(articleID, item.key)"
-                v-if="userID === item.author || auth > 1"
-              >
-                &#128465;
-              </span>
-            </h4>
-            <pre class="article_content" v-text="item.content"></pre>
-          </div>
+          class="article_floor"
+          v-text="article.comment ? article.comment.length + 1 + 'F' : '1F'"
+        ></div>
+        <div class="article_comment_main">
+          <h4 class="article_subTitle">
+            <span v-text="userName"></span>
+            <span class="article_del" @click="newComment">
+              點我送出回覆
+            </span>
+          </h4>
+          <textarea
+            cols="30"
+            rows="3"
+            maxlength="500"
+            class="article_content new"
+            placeholder="請於此處輸入回覆內容"
+            v-model="newArtComment"
+          ></textarea>
         </div>
       </div>
-    </div> -->
+      <div
+        class="article_comment"
+        v-for="(item, index) in article.comment"
+        :key="item.key"
+      >
+        <div
+          class="article_floor"
+          v-text="article.comment.length - index + 'F'"
+        ></div>
+        <div class="article_comment_main">
+          <h4 class="article_subTitle">
+            <span v-text="item.authorName"></span>
+            <span v-text="item.timeStamp"></span>
+            <span
+              class="article_del"
+              @click="delArticle(articleID, item.key)"
+              v-if="userID === item.author || auth > 1"
+            >
+              &#128465;
+            </span>
+          </h4>
+          <pre class="article_content" v-text="item.content"></pre>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -124,10 +80,6 @@ export default {
       articleList: [],
       article: {},
       auth: 0,
-      newArtShow: false,
-      newArtTitle: "",
-      newArtContent: "",
-      newArtComment: "",
     };
   },
   computed: {
@@ -136,14 +88,6 @@ export default {
     },
     articleID() {
       return this.userID ? this.$route.params.articleID : null;
-    },
-    showPage() {
-      const group = this.groupID ? !!this.groupMap[this.groupID] : false;
-      const article = this.articleID
-        ? !!Object.keys(this.article).length
-        : true;
-      if (this.auth == 0) this.setGroupInfo(0, "");
-      return group && article && this.auth > 0;
     },
   },
   props: {
@@ -171,29 +115,6 @@ export default {
   //   },
   // },
   // methods: {
-  //   handleGroupID() {
-  //     firebase
-  //       .database()
-  //       .ref("/article/" + this.groupID)
-  //       .on("value", (res) => {
-  //         this.articleList.length = 0;
-  //         this.setGroupInfo(this.groupID);
-  //         firebase
-  //           .database()
-  //           .ref("/member/" + this.userID + "/auth/" + this.groupID)
-  //           .on("value", (res) => (this.auth = res.val()));
-  //         if (!res.val()) return;
-  //         Object.keys(res.val()).forEach((key) => {
-  //           let temp = res.val()[key];
-  //           temp.key = key;
-  //           temp.reply = temp.comment ? Object.keys(temp.comment).length : 0;
-  //           delete temp.comment;
-  //           delete temp.logs;
-  //           this.articleList.push(temp);
-  //         });
-  //         this.articleList = sortDT(this.articleList);
-  //       });
-  //   },
   //   handleArticleID() {
   //     firebase
   //       .database()
@@ -255,39 +176,12 @@ export default {
   //     if (key) return;
   //     router.replace("/" + this.groupID);
   //   },
-  //   goArtList() {
-  //     router.push("/" + this.groupID + "/");
-  //   },
   // },
 };
 </script>
 
 <style lang="scss" scoped>
 @import "../assets/scss/_variables";
-
-.controller {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-right: min(2vw, 1rem);
-  &_btn {
-    padding: 0.3rem 1.5rem;
-    font-size: min(1.2rem, 3vw);
-    border: none;
-    border-bottom: 4px solid $c_danger-dark;
-    outline: none;
-    transition: background-color 0.5s;
-    cursor: pointer;
-    &:hover {
-      color: $c_light;
-      background-color: $c_danger-dark;
-    }
-  }
-  &_left {
-    margin-right: auto;
-  }
-}
-
 .list {
   margin-top: min(2vw, 1rem);
   &_link {

@@ -30,6 +30,10 @@ export const groupCheck = (aid, gList) => {
 
 export const articleCheck = () => {};
 
+export const getRealData = (path) => {
+  return firebase.database().ref(path);
+};
+
 export const getFD = (path) => {
   return new Promise((resolve) => {
     firebase
