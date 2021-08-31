@@ -83,7 +83,6 @@ export default {
         this.handlerData("activeAuth", res.auth);
         this.handlerData("activeGroupName", res.name);
         this.handleGroup();
-        this.loading = false;
       })
       .catch((path) => router.replace(path));
   },
@@ -104,6 +103,7 @@ export default {
       this.handlerLogs("View", this.groupID);
       getRealData("/article/" + this.groupID).on("value", (res) => {
         this.artList.length = 0;
+        this.loading = false;
         if (!res.val()) return;
         Object.keys(res.val()).forEach((key) => {
           let temp = res.val()[key];

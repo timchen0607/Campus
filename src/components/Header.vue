@@ -8,7 +8,7 @@
       <h2 class="header-subTitle" v-if="userID">
         <span v-text="activeGroupName"></span>
         <span class="header-setting" @click="showMenu = !showMenu">
-          &#x2699;
+          <i class="icofont-gear"></i>
         </span>
         <div :class="['header-menu', { show: showMenu }]">
           <ul>
@@ -38,7 +38,7 @@
                 to="/Logs"
                 @click="showMenu = false"
               >
-                <i class="icofont-paper"></i> 使用紀錄
+                <i class="icofont-history"></i> 使用紀錄
               </router-link>
             </li>
             <li>

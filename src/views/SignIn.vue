@@ -24,8 +24,12 @@
       <label for="keepOn">保持登入狀態(請勿在公用電腦使用)</label>
     </div>
     <p class="signIn-alert" v-if="alert" v-text="alert"></p>
-    <button class="btn locked" v-if="locked">登入中...</button>
-    <button class="btn" v-else @click="handleSignIn">登入</button>
+    <button class="btn locked" v-if="locked">
+      <i class="icofont-login"></i> 登入中...
+    </button>
+    <button class="btn" v-else @click="handleSignIn">
+      <i class="icofont-login"></i> 登入
+    </button>
   </div>
 </template>
 

@@ -20,15 +20,13 @@ export const userCheck = (uid) => {
   });
 };
 
-export const groupCheck = (aid, gList) => {
+export const groupCheck = (gid, gList) => {
   return new Promise((resolve, reject) => {
-    const auth = gList.find((x) => x.key === aid);
+    const auth = gList.find((x) => x.key === gid);
     if (!auth) reject("/Error");
     else resolve(auth);
   });
 };
-
-export const articleCheck = () => {};
 
 export const getRealData = (path) => {
   return firebase.database().ref(path);

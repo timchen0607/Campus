@@ -1,12 +1,29 @@
 <template>
   <div class="article main">
-    <div class="container">11</div>
+    <div class="container">
+      <div class="loading" v-if="loading">AAAAAAAAAAAA</div>
+      <div v-else>
+        <div class="article-control">
+          <router-link class="btn" v-if="!loading" :to="'/' + groupID">
+            <i class="icofont-swoosh-left"></i>返回文章列表
+          </router-link>
+          <router-link
+            class="btn"
+            :to="'/' + groupID + '/' + articleID + '/newReply'"
+          >
+            <i class="icofont-pencil-alt-5"></i> 新增回覆
+          </router-link>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { defineComponent } from "vue";
-export default defineComponent({
+import router from "../router";
+import { userCheck, groupCheck, getRealData, getFD } from "../assets/config";
+
+export default {
   name: "Article",
   data() {
     return {
@@ -31,27 +48,52 @@ export default defineComponent({
     handlerData: Function,
     handlerLogs: Function,
   },
-});
+  created() {
+    userCheck(this.userID)
+      .then(() => groupCheck(this.groupID, this.groupList))
+      .then((res) => {
+        this.handlerData("activeAuth", res.auth);
+        this.handlerData("activeGroupName", res.name);
+        this.handleArticle();
+      })
+      .catch((path) => router.replace(path));
+  },
+  methods: {
+    handleArticle() {
+      this.handlerLogs("View", this.groupID, this.articleID);
+      getFD("/article/" + this.groupID + "/" + this.articleID)
+        .then((res) => (this.article = res))
+        .then(() => {
+          getRealData("/comment/" + this.groupID + "/" + this.articleID).on(
+            "value",
+            (res) => {
+              console.log(res.val());
+              // this.artList.length = 0;
+              // if (!res.val()) return;
+              // Object.keys(res.val()).forEach((key) => {
+              //   let temp = res.val()[key];
+              //   temp.key = key;
+              //   this.artList.unshift(temp);
+              // });
+            }
+          );
+        })
+        .then(() => (this.loading = false));
+    },
+  },
+};
 </script>
 
 <style lang="scss">
 @import "../assets/scss/_variables";
 
 .article {
-  &_back {
-    margin-bottom: min(1rem, 1vw);
-    padding: 0.3rem 1.5rem;
-    font-size: min(1.2rem, 3vw);
-    border: none;
-    border-bottom: 4px solid $c_danger-dark;
-    outline: none;
-    transition: background-color 0.5s;
-    cursor: pointer;
-    &:hover {
-      color: $c_light;
-      background-color: $c_danger-dark;
-    }
+  &-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
+
   &_title {
     padding: min(1.5vw, 0.5rem);
     font-size: min(5vw, 2.5rem);
