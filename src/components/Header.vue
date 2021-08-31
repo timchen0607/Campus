@@ -17,24 +17,33 @@
                 class="header-menu-item"
                 :to="'/' + item.key"
                 v-text="item.name"
+                @click="showMenu = false"
               ></router-link>
             </li>
           </ul>
           <hr />
           <ul>
             <li>
-              <router-link class="header-menu-item" to="/Setting">
-                <i class="icofont-user-alt-2"></i>個人資料
+              <router-link
+                class="header-menu-item"
+                to="/Setting"
+                @click="showMenu = false"
+              >
+                <i class="icofont-user-alt-2"></i> 個人資料
               </router-link>
             </li>
             <li v-if="activeAuth > 2">
-              <router-link class="header-menu-item" to="/Logs">
-                <i class="icofont-paper"></i>使用紀錄
+              <router-link
+                class="header-menu-item"
+                to="/Logs"
+                @click="showMenu = false"
+              >
+                <i class="icofont-paper"></i> 使用紀錄
               </router-link>
             </li>
             <li>
               <span class="header-menu-item" @click="signOut">
-                <i class="icofont-logout"></i>登出
+                <i class="icofont-logout"></i> 登出
               </span>
             </li>
           </ul>
@@ -80,6 +89,7 @@ export default {
   top: 0;
   padding: 1rem 0.5rem;
   background-color: $c_dark;
+  user-select: none;
   z-index: 10;
   .container {
     display: flex;

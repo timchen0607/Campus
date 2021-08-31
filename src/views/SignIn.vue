@@ -25,7 +25,7 @@
     </div>
     <p class="signIn-alert" v-if="alert" v-text="alert"></p>
     <button class="btn locked" v-if="locked">登入中...</button>
-    <button class="btn" @click="handleSignIn" v-else>登入</button>
+    <button class="btn" v-else @click="handleSignIn">登入</button>
   </div>
 </template>
 
@@ -60,7 +60,7 @@ export default {
   props: { handlerData: Function },
   created() {
     this.FA.onAuthStateChanged((user) => {
-      if (user) this.handlePersonalInfo(user.uid);
+      if (user) this.handlePersonalInfo(user.uid, user.email);
     });
   },
   methods: {
@@ -91,7 +91,7 @@ export default {
       this.signInCount += 1;
       this.FA.setPersistence(this.FAP).then(() => {
         return this.FA.signInWithEmailAndPassword(this.email, this.password)
-          .then((res) => this.handlePersonalInfo(res.user.uid))
+          .then((res) => this.handlePersonalInfo(res.user.uid, res.user.email))
           .catch(() => {
             this.alert = "登入失敗!無此帳號或密碼錯誤!";
             this.password = "";
@@ -100,7 +100,7 @@ export default {
           });
       });
     },
-    handlePersonalInfo(uid) {
+    handlePersonalInfo(uid, email) {
       this.loading = true;
       this.alert = "";
       this.locked = true;
@@ -108,7 +108,7 @@ export default {
       getFD("/member/" + uid)
         .then((res) => {
           this.handlerData("userID", uid);
-          this.handlerData("account", this.email);
+          this.handlerData("account", email);
           this.handlerData("userName", res.name);
           auth = res.auth;
           return getFD("/group/");
@@ -116,7 +116,7 @@ export default {
         .then((res) => {
           const temp = [];
           Object.keys(auth).forEach((key) => {
-            if (auth[key] > 0)
+            if (auth[key] > 0 && key !== "System")
               temp.push({ key: key, name: res[key], auth: auth[key] });
           });
           this.handlerData("groupList", temp);

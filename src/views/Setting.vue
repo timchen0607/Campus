@@ -1,62 +1,119 @@
 <template>
-  <div class="setting">
+  <div class="setting main">
     <div class="container">
-      <h3 class="setting-title">個人資料設定</h3>
-      <h4 class="setting-subTitle" v-text="userName"></h4>
-      <hr />
-      <h3 class="setting-title">個人密碼修改</h3>
-      <div class="setting-inputgroup">
-        <input type="password" class="setting-input" v-model="oldPW" />
-        <p class="setting-placeholder">請輸入舊的密碼</p>
+      <div class="loading" v-if="loading">
+        <h3 class="loading-title skeleton"></h3>
+        <h4 class="loading-subTitle skeleton"></h4>
+        <span class="btn skeleton" v-for="x in 4" :key="x">&nbsp;</span>
+        <hr class="loading-hr" />
+        <div class="loading-content skeleton"></div>
       </div>
-      <div class="setting-inputgroup">
-        <input type="password" class="setting-input" v-model="newPW" />
-        <p class="setting-placeholder">請輸入新的密碼</p>
+      <div v-else>
+        <div class="setting-control">
+          <h3 class="setting-title">個人資料管理</h3>
+          <h4 class="setting-subTitle" v-text="account"></h4>
+          <h4 class="setting-subTitle" v-text="userName"></h4>
+          <span :class="['btn', { active: mode === 0 }]" @click="mode = 0">
+            聯絡管理員
+          </span>
+          <span :class="['btn', { active: mode === 1 }]" @click="mode = 1">
+            變更密碼
+          </span>
+          <span :class="['btn', { active: mode === 2 }]" @click="mode = 2">
+            文章通知
+          </span>
+        </div>
+        <hr class="setting-hr" />
+        <div v-if="mode === 0">
+          <p class="setting-subTitle">陳政丰</p>
+          <p class="setting-subTitle">10961112@gm.nfu.edu.tw</p>
+        </div>
+        <div v-if="mode === 1">
+          <div class="modify-inputgroup">
+            <input type="password" class="modify-input" v-model="oldPW" />
+            <p class="modify-placeholder">請輸入舊的密碼</p>
+          </div>
+          <div class="modify-inputgroup">
+            <input type="password" class="modify-input" v-model="newPW" />
+            <p class="modify-placeholder">請輸入新的密碼</p>
+          </div>
+          <div class="modify-inputgroup">
+            <input type="password" class="modify-input" v-model="chkPW" />
+            <p class="modify-placeholder">請確認新的密碼</p>
+          </div>
+          <p class="modify-alert" v-if="alert" v-text="alert"></p>
+          <button class="btn locked" v-if="locked">
+            修改中...
+          </button>
+          <button class="btn" v-else @click="handleModifyPW">
+            修改
+          </button>
+        </div>
+        <div v-if="mode === 2">
+          <div>
+            <input type="checkbox" v-model="notify" id="notify" />
+            <label for="notify" class="notify">
+              接收新文章通知(建議勾選避免錯過作業與公告)
+            </label>
+          </div>
+          <button class="btn locked" v-if="locked">
+            儲存中...
+          </button>
+          <button class="btn" v-else @click="handleModifyNotify">
+            儲存
+          </button>
+        </div>
       </div>
-      <div class="setting-inputgroup">
-        <input type="password" class="setting-input" v-model="chkPW" />
-        <p class="setting-placeholder">請確認新的密碼</p>
-      </div>
-      <p class="setting-alert" v-if="alert" v-text="alert"></p>
-      <button class="setting-btn setting-btn-locked" v-if="locked">
-        修改中...
-      </button>
-      <button class="setting-btn" @click="handleUpdatePW" v-else>
-        修改
-      </button>
-      <hr />
-      <h3 class="setting-title">聯繫管理員</h3>
-      <h4 class="setting-subTitle">陳政丰</h4>
-      <h4 class="setting-subTitle">10961112@gm.nfu.edu.tw</h4>
     </div>
   </div>
 </template>
 
 <script>
 import firebase from "firebase/app";
-import "firebase/auth";
+import router from "../router";
+import { userCheck, getFD } from "../assets/config";
 
 export default {
   name: "Setting",
   data() {
     return {
+      loading: true,
+      mode: 0,
       oldPW: "",
       newPW: "",
       chkPW: "",
       alert: "",
+      notify: "",
+      errorCount: 0,
       locked: false,
     };
   },
   props: {
+    userID: String,
     account: String,
     userName: String,
-    setGroupInfo: Function,
+    handlerData: Function,
+    handlerLogs: Function,
   },
   created() {
-    this.setGroupInfo(0, "個人資料");
+    userCheck(this.userID)
+      .then(() => getFD("member/" + this.userID + "/notify"))
+      .then((res) => {
+        this.handlerData("activeAuth", 0);
+        this.handlerData("activeGroupName", "個人資料");
+        this.handlerLogs("Setting", "System");
+        this.notify = res;
+        this.loading = false;
+      })
+      .catch((path) => router.replace(path));
   },
   methods: {
-    handleUpdatePW() {
+    handleModifyPW() {
+      this.errorCount += 1;
+      if (this.errorCount > 5) {
+        alert("嘗試次數過多!");
+        return;
+      }
       if (
         this.oldPW.length < 6 ||
         this.newPW.length < 6 ||
@@ -69,6 +126,10 @@ export default {
         this.alert = "兩次密碼輸入不相同!";
         return;
       }
+      if (this.oldPW === this.newPW) {
+        this.alert = "新密碼不可與舊密碼相同!";
+        return;
+      }
       const user = firebase.auth().currentUser;
       const credential = firebase.auth.EmailAuthProvider.credential(
         this.account,
@@ -78,19 +139,35 @@ export default {
         .reauthenticateWithCredential(credential)
         .then(() => {
           this.locked = true;
-          user
-            .updatePassword(this.newPW)
-            .then(() => {
-              this.oldPW = "";
-              this.newPW = "";
-              this.chkPW = "";
-              this.alert = "";
-              this.locked = false;
-              alert("密碼修改成功!");
-            })
-            .catch(() => (this.alert = "發生不知名錯誤!請聯繫管理員"));
+          return user.updatePassword(this.newPW);
         })
-        .catch(() => (this.alert = "舊密碼輸入錯誤!驗證失敗!"));
+        .then(() => {
+          this.oldPW = "";
+          this.newPW = "";
+          this.chkPW = "";
+          this.alert = "";
+          this.handlerLogs("ModifyPW", "System");
+          this.errorCount = 0;
+          this.locked = false;
+          alert("密碼修改成功!");
+        })
+        .catch(() => (this.alert = "驗證失敗!"));
+    },
+    handleModifyNotify() {
+      this.errorCount += 1;
+      if (this.errorCount > 5) {
+        alert("嘗試次數過多!");
+        return;
+      }
+      const signOutFlag = this.notify ? true : confirm("確定要取消通知嗎?");
+      if (!signOutFlag) return;
+      this.locked = true;
+      firebase
+        .database()
+        .ref("member/" + this.userID + "/notify")
+        .set(this.notify);
+      alert("通知狀態修改成功!");
+      this.locked = false;
     },
   },
 };
@@ -99,15 +176,28 @@ export default {
 <style lang="scss" scoped>
 @import "../assets/scss/_variables";
 
-.setting {
-  min-height: calc(100vh - 72px);
-  background-color: $c_primary;
-  .container {
-    min-height: inherit;
-    padding: min(1rem, 1vw);
-    background-color: $c_light;
-    text-align: center;
+.loading {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  &-title {
+    margin: 0.5rem 0;
+    height: 2rem;
   }
+  &-subTitle {
+    margin: 1rem 0;
+    height: 1.5rem;
+  }
+  &-hr {
+    margin: 1rem 0;
+  }
+  &-content {
+    height: 15rem;
+  }
+}
+
+.setting {
+  text-align: center;
   &-title {
     margin: 0.5rem 0;
     font-size: 1.5rem;
@@ -116,6 +206,11 @@ export default {
     margin: 1rem 0;
     font-size: 1.3rem;
   }
+  &-hr {
+    margin: 1rem 0;
+  }
+}
+.modify {
   &-inputgroup {
     position: relative;
     width: min(500px, 90vw);
@@ -153,22 +248,10 @@ export default {
       content: "※";
     }
   }
-  &-btn {
-    display: block;
-    width: min(500px, 90vw);
-    margin: 1rem auto;
-    padding: 0.5rem;
-    font-size: 1.5rem;
-    color: $c_light;
-    background-color: $c_danger;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    outline: none;
-    &-locked {
-      background-color: $c_secondary;
-      cursor: wait;
-    }
-  }
+}
+.notify {
+  display: inline-block;
+  padding: 0.5rem;
+  font-size: 1.2rem;
 }
 </style>
