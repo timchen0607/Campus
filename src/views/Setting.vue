@@ -78,14 +78,14 @@ export default {
   data() {
     return {
       loading: true,
-      mode: 0,
-      oldPW: "",
-      newPW: "",
-      chkPW: "",
-      alert: "",
-      notify: "",
-      errorCount: 0,
-      locked: false,
+      mode: 0, // 顯示模式
+      oldPW: "", // 舊密碼
+      newPW: "", // 新密碼
+      chkPW: "", // 密碼確認
+      alert: "", // 錯誤提示
+      notify: null, // 通知開關
+      errorCount: 0, //操作次數
+      locked: false, // 鎖定按鈕
     };
   },
   props: {

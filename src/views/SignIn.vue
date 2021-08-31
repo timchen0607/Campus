@@ -46,7 +46,7 @@ export default {
       alert: "", // 錯誤提示
       signInCount: 0, //登入次數
       locked: false, // 鎖定登入按鈕
-      prevRoute: null,
+      prevRoute: null, // 從哪來
       FA: firebase.auth(),
     };
   },
