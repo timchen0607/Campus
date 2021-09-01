@@ -21,6 +21,7 @@ body {
     min-height: inherit;
     padding: min(1rem, 1vw);
     background-color: $c_light;
+    box-shadow: 0 0 10px 1px $c_dark;
   }
 }
 

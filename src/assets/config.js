@@ -43,11 +43,31 @@ export const getFD = (path) => {
 
 export const setFD = (path, obj) => {
   return new Promise((resolve) => {
+    firebase
+      .database()
+      .ref(path)
+      .set(obj);
+    resolve();
+  });
+};
+
+export const pushFD = (path, obj) => {
+  return new Promise((resolve) => {
     const res = firebase
       .database()
       .ref(path)
       .push(obj);
     resolve(res);
+  });
+};
+
+export const delFD = (path) => {
+  return new Promise((resolve) => {
+    firebase
+      .database()
+      .ref(path)
+      .remove();
+    resolve();
   });
 };
 

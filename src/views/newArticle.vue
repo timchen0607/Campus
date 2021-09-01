@@ -112,7 +112,7 @@
 
 <script>
 import router from "../router";
-import { userCheck, groupCheck, setFD, getDT } from "../assets/config";
+import { userCheck, groupCheck, pushFD, getDT } from "../assets/config";
 
 export default {
   name: "NewArticle",
@@ -175,7 +175,7 @@ export default {
         title: this.newArtTitle,
         type: this.newArtType,
       };
-      setFD("/article/" + this.groupID, obj)
+      pushFD("/article/" + this.groupID, obj)
         .then((res) => this.handlerLogs("Release", this.groupID, res.key))
         .then(() => router.push("/" + this.groupID));
     },

@@ -23,7 +23,7 @@ import firebase from "firebase/app";
 import "firebase/analytics";
 import "firebase/database";
 import Header from "./components/Header.vue";
-import { firebaseConfig, setFD, getDT } from "./assets/config";
+import { firebaseConfig, pushFD, getDT } from "./assets/config";
 
 export default {
   name: "App",
@@ -62,7 +62,7 @@ export default {
         action: action,
         device: this.device,
       };
-      setFD("/logs/" + gid, obj);
+      pushFD("/logs/" + gid, obj);
     },
     setGroupInfo(name = null) {
       if (name !== null) {

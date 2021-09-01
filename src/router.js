@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Group from "./views/Group.vue";
 import Article from "./views/Article.vue";
 import newArticle from "./views/newArticle.vue";
+import newComment from "./views/newComment.vue";
 import SignIn from "./views/SignIn.vue";
 import Setting from "./views/Setting.vue";
 import Logs from "./views/Logs.vue";
@@ -27,6 +28,11 @@ const routes = [
     path: "/:groupID/:articleID",
     name: "Article",
     component: Article,
+  },
+  {
+    path: "/:groupID/:articleID/newComment",
+    name: "newComment",
+    component: newComment,
   },
   {
     path: "/Logs",
