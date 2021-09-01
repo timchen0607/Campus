@@ -84,7 +84,7 @@ export default {
       chkPW: "", // 密碼確認
       alert: "", // 錯誤提示
       notify: null, // 通知開關
-      errorCount: 0, //操作次數
+      errCnt: 0, //操作次數
       locked: false, // 鎖定按鈕
     };
   },
@@ -109,8 +109,8 @@ export default {
   },
   methods: {
     handleModifyPW() {
-      this.errorCount += 1;
-      if (this.errorCount > 5) {
+      this.errCnt += 1;
+      if (this.errCnt > 5) {
         alert("嘗試次數過多!");
         return;
       }
@@ -146,17 +146,17 @@ export default {
           this.newPW = "";
           this.chkPW = "";
           this.alert = "";
-          this.handlerLogs("ModifyPW", "System");
-          this.errorCount = 0;
+          this.handlerLogs("Modify", "System", "Password");
+          this.errCnt = 0;
           this.locked = false;
           alert("密碼修改成功!");
         })
         .catch(() => (this.alert = "驗證失敗!"));
     },
     handleModifyNotify() {
-      this.errorCount += 1;
-      if (this.errorCount > 5) {
-        alert("嘗試次數過多!");
+      this.errCnt += 1;
+      if (this.errCnt > 5) {
+        alert("操作太頻繁!");
         return;
       }
       const signOutFlag = this.notify ? true : confirm("確定要取消通知嗎?");
@@ -166,6 +166,7 @@ export default {
         .database()
         .ref("member/" + this.userID + "/notify")
         .set(this.notify);
+      this.handlerLogs("Modify", "System", "Notify", this.notify);
       alert("通知狀態修改成功!");
       this.locked = false;
     },

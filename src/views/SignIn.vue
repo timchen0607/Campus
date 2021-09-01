@@ -48,7 +48,7 @@ export default {
       password: "", // 會員密碼
       keepOn: false, // 保持登入狀態
       alert: "", // 錯誤提示
-      signInCount: 0, //登入次數
+      signInCnt: 0, //登入次數
       locked: false, // 鎖定登入按鈕
       prevRoute: null, // 從哪來
       FA: firebase.auth(),
@@ -73,7 +73,7 @@ export default {
         this.FA.signOut();
         return;
       }
-      if (this.signInCount > 5) {
+      if (this.signInCnt > 5) {
         this.alert = "登入失敗!無此帳號或密碼錯誤!";
         this.password = "";
         this.$refs.password.focus();
@@ -92,7 +92,7 @@ export default {
       }
       if (this.email.indexOf("@") < 0) this.email += "@gm.nfu.edu.tw";
       this.locked = true;
-      this.signInCount += 1;
+      this.signInCnt += 1;
       this.FA.setPersistence(this.FAP).then(() => {
         return this.FA.signInWithEmailAndPassword(this.email, this.password)
           .then((res) => this.handlePersonalInfo(res.user.uid, res.user.email))

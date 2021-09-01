@@ -52,13 +52,14 @@ export default {
     handlerData(dataName, data) {
       if (dataName) this[dataName] = data;
     },
-    handlerLogs(action, gid, aid = null) {
+    handlerLogs(action, gid, aid = null, key = null) {
       const obj = {
         userID: this.userID,
         userName: this.userName,
         timeStamp: getDT(),
         group: gid,
         article: aid,
+        comment: key,
         action: action,
         device: this.device,
       };

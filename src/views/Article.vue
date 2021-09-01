@@ -30,43 +30,60 @@
           </h4>
           <pre class="article-content" v-text="article.content"></pre>
         </div>
-        <div class="article-notify">
-          <input type="checkbox" v-model="notify" id="notify" />
-          <label for="notify" class="notify" @click="handleNotify">
-            開啟文章通知
-          </label>
+        <div class="article-control">
+          <span v-if="popCmt.likeCnt >= 5">熱門留言</span>
+          <span></span>
+          <div class="article-notify">
+            <input type="checkbox" v-model="notify" id="notify" />
+            <label for="notify" @click="handleNotify"> 開啟文章通知</label>
+          </div>
         </div>
-        <div
-          class="article-comment"
-          v-for="(item, index) in replyList"
-          :key="item.key"
-        >
-          <div
-            class="article-floor"
-            v-text="replyList.length - index + 'F'"
-          ></div>
+        <div class="article-comment popular" v-if="popCmt.likeCnt >= 5">
+          <div class="article-floor popular" v-text="popCmt.index"></div>
+          <div class="article-comment-main">
+            <h4 class="article-subTitle">
+              <span v-text="popCmt.authorName"></span>
+              <span v-text="popCmt.timeStamp"></span>
+              <span
+                class="article-del"
+                @click="handleCmtDel(popCmt.key)"
+                v-if="userID === popCmt.author || activeAuth > 1"
+              >
+                <i class="icofont-ui-delete"></i>
+              </span>
+              <span
+                :class="['article-like', { active: popCmt.liked }]"
+                @click="handleLikes(popCmt.key, popCmt.likes)"
+                v-else
+              >
+                <i class="icofont-thumbs-up"></i> {{ popCmt.likeCnt }}
+              </span>
+            </h4>
+            <pre class="article-content" v-text="popCmt.content"></pre>
+          </div>
+        </div>
+        <div class="article-comment" v-for="item in cmtList" :key="item.key">
+          <div class="article-floor" v-text="item.index"></div>
           <div class="article-comment-main">
             <h4 class="article-subTitle">
               <span v-text="item.authorName"></span>
               <span v-text="item.timeStamp"></span>
               <span
                 class="article-del"
-                @click="handleReplyDel(item.key)"
+                @click="handleCmtDel(item.key)"
                 v-if="userID === item.author || activeAuth > 1"
               >
                 <i class="icofont-ui-delete"></i>
               </span>
               <span
-                :class="[
-                  'article-love',
-                  { active: item.loves.indexOf(userID) >= 0 },
-                ]"
+                :class="['article-like', { active: item.liked }]"
+                @click="handleLikes(item.key, item.likes)"
                 v-else
               >
-                <i class="icofont-thumbs-up"></i> {{ item.loveCount }}
+                <i class="icofont-thumbs-up"></i> {{ item.likeCnt }}
               </span>
             </h4>
-            <pre class="article-content" v-text="item"></pre>
+            <pre class="article-content" v-text="item.content"></pre>
           </div>
         </div>
       </div>
@@ -90,9 +107,13 @@ export default {
   data() {
     return {
       loading: true,
-      article: null,
-      notify: false,
-      replyList: [],
+      article: null, // 文章內容
+      notify: false, // 是否接收通知
+      notifyCnt: 0, // 通知狀態修改次數
+      lastLiked: "", // 上個喜歡的留言
+      likedCnt: 0, // 重複點擊喜歡次數
+      cmtList: [], // 回覆列表
+      popCmt: { likeCnt: 0 }, // 最受歡迎回覆
     };
   },
   computed: {
@@ -117,13 +138,13 @@ export default {
       .then((res) => {
         this.handlerData("activeAuth", res.auth);
         this.handlerData("activeGroupName", res.name);
+        this.handlerLogs("View", this.groupID, this.articleID);
         this.handleArticle();
       })
       .catch((path) => router.replace(path));
   },
   methods: {
     handleArticle() {
-      this.handlerLogs("View", this.groupID, this.articleID);
       getFD("/article/" + this.groupID + "/" + this.articleID)
         .then((res) => {
           this.notify = res.notify
@@ -135,13 +156,20 @@ export default {
           getRealData("/comment/" + this.groupID + "/" + this.articleID).on(
             "value",
             (res) => {
-              this.replyList.length = 0;
+              this.cmtList.length = 0;
               if (!res.val()) return;
-              Object.keys(res.val()).forEach((key) => {
+              Object.keys(res.val()).forEach((key, index) => {
                 let temp = res.val()[key];
                 temp.key = key;
-                temp.loveCount = temp.loves ? temp.loves.split(",").length : 0;
-                this.replyList.unshift(temp);
+                temp.index = index + 1 + "F";
+                temp.likeCnt = temp.likes ? temp.likes.split(",").length : 0;
+                temp.liked =
+                  temp.likes && temp.likes.indexOf(this.userID) >= 0
+                    ? true
+                    : false;
+                if (temp.likeCnt >= 5 && temp.likeCnt >= this.popCmt.likeCnt)
+                  this.popCmt = temp;
+                this.cmtList.unshift(temp);
               });
             }
           );
@@ -149,14 +177,16 @@ export default {
         .then(() => (this.loading = false));
     },
     handleNotify() {
+      this.notifyCnt++;
+      if (this.notifyCnt > 5) {
+        alert("操作太頻繁!");
+        return;
+      }
+      const TAN = this.article.notify;
       const path =
         "/article/" + this.groupID + "/" + this.articleID + "/notify";
-      const index = this.article.notify
-        ? this.article.notify.indexOf(this.userID)
-        : -2;
-      const temp = this.article.notify
-        ? this.article.notify.split(",")
-        : [this.userID];
+      const index = TAN ? TAN.indexOf(this.userID) : -2;
+      const temp = TAN ? TAN.split(",") : [this.userID];
       if (index === -1) temp.push(this.userID);
       if (index > -1) {
         const idx = temp.indexOf(this.userID);
@@ -164,6 +194,25 @@ export default {
       }
       setFD(path, temp.join());
       this.article.notify = temp.join();
+      this.handlerLogs("Notify", this.groupID, this.articleID, !this.notify);
+    },
+    handleLikes(key, likes) {
+      if (this.lastLiked === key) this.likedCnt++;
+      if (this.likedCnt > 5) {
+        alert("操作太頻繁!");
+        return;
+      }
+      this.lastLiked = key;
+      const path = `/comment/${this.groupID}/${this.articleID}/${key}/likes`;
+      const index = likes ? likes.indexOf(this.userID) : -2;
+      const temp = likes ? likes.split(",") : [this.userID];
+      if (index === -1) temp.push(this.userID);
+      if (index > -1) {
+        const idx = temp.indexOf(this.userID);
+        temp.splice(idx, 1);
+      }
+      setFD(path, temp.join());
+      this.handlerLogs("Like", this.groupID, this.articleID, key);
     },
     handleArtDel() {
       const delFlag = confirm("確定要刪除?刪除後無法恢復資料。");
@@ -174,14 +223,16 @@ export default {
         router.push("/" + this.groupID);
       });
     },
-    handleReplyDel() {
+    handleCmtDel(key) {
       const delFlag = confirm("確定要刪除?刪除後無法恢復資料。");
       if (!delFlag) return;
-      // delFD("/article/" + this.groupID + "/" + this.articleID).then(() => {
-      //   this.handlerLogs("Delete", this.groupID, this.articleID);
-      //   alert("刪除成功!");
-      //   router.push("/" + this.groupID);
-      // });
+      delFD("/comment/" + this.groupID + "/" + this.articleID + "/" + key).then(
+        () => {
+          this.handlerLogs("Delete", this.groupID, this.articleID, key);
+          alert("刪除成功!");
+          router.push("/" + this.groupID);
+        }
+      );
     },
   },
 };
@@ -218,7 +269,7 @@ export default {
     }
   }
   &-del,
-  &-love {
+  &-like {
     flex: 1;
     text-align: center;
     cursor: pointer;
@@ -227,7 +278,7 @@ export default {
       background-color: $c_danger;
     }
   }
-  &-love {
+  &-like {
     &:hover,
     &.active {
       color: $c_light;
@@ -243,10 +294,6 @@ export default {
     box-sizing: border-box;
     overflow-x: auto;
   }
-  &-notify {
-    text-align: right;
-    margin-bottom: 1rem;
-  }
   &-comment {
     display: flex;
     align-items: stretch;
@@ -254,6 +301,9 @@ export default {
     &-main {
       width: 0;
       flex: 1;
+    }
+    &.popular {
+      margin-bottom: 1.5rem;
     }
   }
   &-floor {
@@ -265,6 +315,9 @@ export default {
     margin-right: 0.5rem;
     font-size: min(4vw, 1.5rem);
     background-color: $c_secondary-light;
+    &.popular {
+      background-color: $c_warning;
+    }
   }
 }
 </style>
