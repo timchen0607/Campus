@@ -157,13 +157,11 @@ export default {
       const temp = this.article.notify
         ? this.article.notify.split(",")
         : [this.userID];
-      console.log(temp);
       if (index === -1) temp.push(this.userID);
       if (index > -1) {
         const idx = temp.indexOf(this.userID);
         temp.splice(idx, 1);
       }
-      console.log(temp);
       setFD(path, temp.join());
       this.article.notify = temp.join();
     },
