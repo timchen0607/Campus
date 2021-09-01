@@ -1,7 +1,27 @@
 <template>
   <div class="article main">
     <div class="container">
-      <div class="loading" v-if="loading">AAAAAAAAAAAA</div>
+      <div class="loading" v-if="loading">
+        <div class="article-main">
+          <h3 class="article-title"></h3>
+          <h4 class="article-subTitle skeleton"></h4>
+          <pre class="article-content"></pre>
+        </div>
+        <div class="article-comment popular">
+          <div class="article-floor popular"></div>
+          <div class="article-comment-main">
+            <h4 class="article-subTitle skeleton"></h4>
+            <pre class="article-content"></pre>
+          </div>
+        </div>
+        <div class="article-comment" v-for="x in 5" :key="x">
+          <div class="article-floor skeleton"></div>
+          <div class="article-comment-main">
+            <h4 class="article-subTitle skeleton"></h4>
+            <pre class="article-content"></pre>
+          </div>
+        </div>
+      </div>
       <div v-else>
         <div class="article-control">
           <router-link class="btn" v-if="!loading" :to="'/' + groupID">
@@ -19,7 +39,7 @@
           <h4 class="article-subTitle">
             <span v-text="article.type"></span>
             <span v-text="article.authorName"></span>
-            <span v-text="article.timeStamp"></span>
+            <span class="article-date" v-text="article.timeStamp"></span>
             <span
               class="article-del"
               @click="handleArtDel"
@@ -43,7 +63,7 @@
           <div class="article-comment-main">
             <h4 class="article-subTitle">
               <span v-text="popCmt.authorName"></span>
-              <span v-text="popCmt.timeStamp"></span>
+              <span class="article-date" v-text="popCmt.timeStamp"></span>
               <span
                 class="article-del"
                 @click="handleCmtDel(popCmt.key)"
@@ -67,7 +87,7 @@
           <div class="article-comment-main">
             <h4 class="article-subTitle">
               <span v-text="item.authorName"></span>
-              <span v-text="item.timeStamp"></span>
+              <span class="article-date" v-text="item.timeStamp"></span>
               <span
                 class="article-del"
                 @click="handleCmtDel(item.key)"
@@ -241,6 +261,18 @@ export default {
 <style lang="scss">
 @import "../assets/scss/_variables";
 
+.loading .article {
+  &-title {
+    height: min(6.5vw, 3rem);
+  }
+  &-subTitle {
+    height: min(4.5vw, 1.5rem);
+  }
+  &-content {
+    height: 4rem;
+  }
+}
+
 .article {
   &-control {
     display: flex;
@@ -264,13 +296,15 @@ export default {
     font-size: min(3vw, 1rem);
     background-color: gainsboro;
     & > * {
-      flex: 2;
+      flex: 1;
       padding: min(1.5vw, 0.5rem);
     }
   }
+  &-date {
+    flex: 2;
+  }
   &-del,
   &-like {
-    flex: 1;
     text-align: center;
     cursor: pointer;
     &:hover {
