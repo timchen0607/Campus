@@ -159,7 +159,6 @@ export default {
       .then((res) => {
         this.handlerData("activeAuth", res.auth);
         this.handlerData("activeGroupName", res.name);
-        this.handlerLogs("View", this.groupID, this.articleID);
         this.handleArticle();
       })
       .catch((path) => router.replace(path));
@@ -168,6 +167,9 @@ export default {
     handleArticle() {
       getFD("/article/" + this.groupID + "/" + this.articleID)
         .then((res) => {
+          if (!res) throw new Error();
+          this.handlerLogs("View", this.groupID, this.articleID);
+          console.log();
           this.notify = res.notify
             ? res.notify.indexOf(this.userID) >= 0
             : false;
@@ -195,7 +197,8 @@ export default {
             }
           );
         })
-        .then(() => (this.loading = false));
+        .then(() => (this.loading = false))
+        .catch(() => router.replace("/Error"));
     },
     handleNotify() {
       this.notifyCnt++;
