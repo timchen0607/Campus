@@ -160,22 +160,14 @@ export default {
         swal("操作太頻繁!", "", "warning");
         return;
       }
-      swal({
-        title: "確定要取消通知嗎?",
-        icon: "info",
-        buttons: true,
-        dangerMode: true,
-      }).then((flag) => {
-        if (!flag) return;
-        this.locked = true;
-        firebase
-          .database()
-          .ref("member/" + this.userID + "/notify")
-          .set(this.notify);
-        this.handlerLogs("Modify", "System", "Notify", this.notify);
-        swal("通知狀態修改成功!", "", "success");
-        this.locked = false;
-      });
+      this.locked = true;
+      firebase
+        .database()
+        .ref("member/" + this.userID + "/notify")
+        .set(this.notify);
+      this.handlerLogs("Modify", "System", "Notify", this.notify);
+      swal("通知狀態修改成功!", "", "success");
+      this.locked = false;
     },
   },
 };

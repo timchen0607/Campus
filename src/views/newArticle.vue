@@ -196,9 +196,8 @@ export default {
       }).then((flag) => {
         if (!flag) return;
         let content = this.newArtContent;
-        while (content.indexOf("\n\n\n") > -1) {
+        while (content.indexOf("\n\n\n") > -1)
           content = content.replaceAll("\n\n\n", "\n\n");
-        }
         const obj = {
           author: this.userID,
           authorName: this.userName,

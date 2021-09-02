@@ -179,9 +179,8 @@ export default {
       }).then((flag) => {
         if (!flag) return;
         let comment = this.newCmt;
-        while (comment.indexOf("\n\n\n") > -1) {
+        while (comment.indexOf("\n\n\n") > -1)
           comment = comment.replaceAll("\n\n\n", "\n\n");
-        }
         const obj = {
           author: this.userID,
           authorName: this.userName,
@@ -189,7 +188,6 @@ export default {
           likes: "",
           timeStamp: getDT(),
         };
-        console.log(obj);
         pushFD("/comment/" + this.groupID + "/" + this.articleID, obj)
           .then((res) =>
             this.handlerLogs("Reply", this.groupID, this.articleID, res.key)

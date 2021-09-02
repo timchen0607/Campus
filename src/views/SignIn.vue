@@ -124,7 +124,7 @@ export default {
               temp.push({ key: key, name: res[key], auth: auth[key] });
           });
           this.handlerData("groupList", temp);
-          if (this.prevRoute.path !== "/") {
+          if (this.prevRoute.path !== "/" && this.prevRoute.path !== "/Error") {
             router.replace(this.prevRoute);
           } else {
             router.replace("/" + Object.keys(auth)[0]);
