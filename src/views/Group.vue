@@ -100,7 +100,8 @@ export default {
   },
   methods: {
     handleGroup() {
-      this.handlerLogs("View", this.groupID);
+      if (this.prevRoute.params.groupID !== this.groupID)
+        this.handlerLogs("View", this.groupID);
       getRealData("/article/" + this.groupID).on("value", (res) => {
         this.artList.length = 0;
         this.loading = false;
@@ -118,6 +119,11 @@ export default {
       if (notify.indexOf(this.userID) < 0) return false;
       return true;
     },
+  },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.prevRoute = from;
+    });
   },
 };
 </script>

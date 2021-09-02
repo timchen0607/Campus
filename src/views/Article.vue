@@ -168,7 +168,8 @@ export default {
       getFD("/article/" + this.groupID + "/" + this.articleID)
         .then((res) => {
           if (!res) throw new Error();
-          this.handlerLogs("View", this.groupID, this.articleID);
+          if (this.prevRoute.params.articleID !== this.articleID)
+            this.handlerLogs("View", this.groupID, this.articleID);
           console.log();
           this.notify = res.notify
             ? res.notify.indexOf(this.userID) >= 0
@@ -246,11 +247,13 @@ export default {
         dangerMode: true,
       }).then((flag) => {
         if (!flag) return;
-        delFD("/article/" + this.groupID + "/" + this.articleID).then(() => {
-          this.handlerLogs("Delete", this.groupID, this.articleID);
-          swal("刪除成功!", "", "success");
-          router.push("/" + this.groupID);
-        });
+        delFD("/article/" + this.groupID + "/" + this.articleID)
+          .then(() => delFD("/comment/" + this.groupID + "/" + this.articleID))
+          .then(() => {
+            this.handlerLogs("Delete", this.groupID, this.articleID);
+            swal("刪除成功!", "", "success");
+            router.push("/" + this.groupID);
+          });
       });
     },
     handleCmtDel(key) {
@@ -270,6 +273,11 @@ export default {
         });
       });
     },
+  },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.prevRoute = from;
+    });
   },
 };
 </script>

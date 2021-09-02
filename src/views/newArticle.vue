@@ -208,9 +208,10 @@ export default {
           title: this.newArtTitle,
           type: this.newArtType,
         };
-        pushFD("/article/" + this.groupID, obj)
-          .then((res) => this.handlerLogs("Release", this.groupID, res.key))
-          .then(() => router.push("/" + this.groupID));
+        pushFD("/article/" + this.groupID, obj).then((res) => {
+          this.handlerLogs("Release", this.groupID, res.key);
+          router.push("/" + this.groupID + "/" + res.key);
+        });
       });
     },
   },

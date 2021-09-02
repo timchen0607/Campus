@@ -101,7 +101,14 @@
 <script>
 import router from "../router";
 import swal from "sweetalert";
-import { userCheck, groupCheck, pushFD, getDT } from "../assets/config";
+import {
+  userCheck,
+  groupCheck,
+  getFD,
+  setFD,
+  pushFD,
+  getDT,
+} from "../assets/config";
 
 export default {
   name: "NewComment",
@@ -189,8 +196,15 @@ export default {
           timeStamp: getDT(),
         };
         pushFD("/comment/" + this.groupID + "/" + this.articleID, obj)
+          .then((res) => {
+            this.handlerLogs("Reply", this.groupID, this.articleID, res.key);
+            return getFD(`/article/${this.groupID}/${this.articleID}/reply`);
+          })
           .then((res) =>
-            this.handlerLogs("Reply", this.groupID, this.articleID, res.key)
+            setFD(
+              `/article/${this.groupID}/${this.articleID}/reply`,
+              (res += 1)
+            )
           )
           .then(() => router.push("/" + this.groupID + "/" + this.articleID));
       });
