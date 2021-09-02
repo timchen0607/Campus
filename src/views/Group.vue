@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="list" v-else>
-        <div class="list-control">
+        <div class="main-control">
           <span :class="['btn', { active: track }]" @click="track = !track">
             <i class="icofont-check" v-if="track"></i> 追蹤中的文章
           </span>
@@ -135,11 +135,6 @@ export default {
 }
 
 .list {
-  &-control {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
   &-link {
     display: flex;
     align-items: center;

@@ -23,6 +23,11 @@ body {
     background-color: $c_light;
     box-shadow: 0 0 10px 1px $c_dark;
   }
+  &-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
 .btn {

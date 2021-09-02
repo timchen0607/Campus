@@ -13,9 +13,14 @@
         </div>
         <div class="skeleton loading-btn"></div>
       </div>
-      <router-link class="btn" v-if="!loading" :to="'/' + groupID">
-        <i class="icofont-swoosh-left"></i>返回文章列表
-      </router-link>
+      <div class="main-control" v-if="!loading">
+        <router-link class="btn" :to="'/' + groupID">
+          <i class="icofont-swoosh-left"></i>返回文章列表
+        </router-link>
+        <button class="btn" @click="handleTips">
+          <i class="icofont-paper"></i> Tips
+        </button>
+      </div>
       <div class="newArt" v-if="!loading">
         <p class="newArt-label">文章類型(必填)</p>
         <div class="newArt-type" v-for="(item, index) in types" :key="index">
@@ -112,6 +117,7 @@
 
 <script>
 import router from "../router";
+import swal from "sweetalert";
 import { userCheck, groupCheck, pushFD, getDT } from "../assets/config";
 
 export default {
@@ -150,34 +156,63 @@ export default {
       .catch((path) => router.replace(path));
   },
   methods: {
+    handleTips() {
+      swal(
+        "Tips",
+        "可以將程式碼貼至 CodePile 或 CodePen，方便其他人閱覽或編輯。",
+        "info",
+        {
+          buttons: {
+            codepile: {
+              text: "CodePile",
+              value: "codepile",
+            },
+            codepen: {
+              text: "CodePen",
+              value: "codepen",
+            },
+            OK: true,
+          },
+        }
+      ).then((res) => {
+        if (res === "codepile") window.open("https://www.codepile.net/");
+        if (res === "codepen") window.open("https://codepen.io/");
+      });
+    },
     release() {
       if (!this.newArtTitle.trim() || !this.newArtContent.trim()) {
-        alert("標題與內容皆不可為空!");
+        swal("標題與內容皆不可為空!", "", "error");
         return;
       }
       if (this.newArtTitle.length > 30 || this.newArtContent.length > 500) {
-        alert("標題或內容長度超過上限!");
+        swal("標題或內容長度超過上限!", "", "error");
         return;
       }
-      const newArtFlag = confirm("確定要發布?文章發布後不可修改。");
-      if (!newArtFlag) return;
-      let content = this.newArtContent;
-      while (content.indexOf("\n\n\n") > -1) {
-        content = content.replaceAll("\n\n\n", "\n\n");
-      }
-      const obj = {
-        author: this.userID,
-        authorName: this.userName,
-        content: content,
-        notify: this.userID,
-        reply: 0,
-        timeStamp: getDT(),
-        title: this.newArtTitle,
-        type: this.newArtType,
-      };
-      pushFD("/article/" + this.groupID, obj)
-        .then((res) => this.handlerLogs("Release", this.groupID, res.key))
-        .then(() => router.push("/" + this.groupID));
+      swal({
+        title: "確定要發布?文章發布後不可修改。",
+        icon: "info",
+        buttons: true,
+        dangerMode: true,
+      }).then((flag) => {
+        if (!flag) return;
+        let content = this.newArtContent;
+        while (content.indexOf("\n\n\n") > -1) {
+          content = content.replaceAll("\n\n\n", "\n\n");
+        }
+        const obj = {
+          author: this.userID,
+          authorName: this.userName,
+          content: content,
+          notify: this.userID,
+          reply: 0,
+          timeStamp: getDT(),
+          title: this.newArtTitle,
+          type: this.newArtType,
+        };
+        pushFD("/article/" + this.groupID, obj)
+          .then((res) => this.handlerLogs("Release", this.groupID, res.key))
+          .then(() => router.push("/" + this.groupID));
+      });
     },
   },
 };

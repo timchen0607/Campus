@@ -71,6 +71,7 @@
 <script>
 import firebase from "firebase/app";
 import router from "../router";
+import swal from "sweetalert";
 import { userCheck, getFD } from "../assets/config";
 
 export default {
@@ -111,7 +112,7 @@ export default {
     handleModifyPW() {
       this.errCnt += 1;
       if (this.errCnt > 5) {
-        alert("嘗試次數過多!");
+        swal("嘗試次數過多!", "", "warning");
         return;
       }
       if (
@@ -149,26 +150,32 @@ export default {
           this.handlerLogs("Modify", "System", "Password");
           this.errCnt = 0;
           this.locked = false;
-          alert("密碼修改成功!");
+          swal("密碼修改成功!", "", "success");
         })
         .catch(() => (this.alert = "驗證失敗!"));
     },
     handleModifyNotify() {
       this.errCnt += 1;
       if (this.errCnt > 5) {
-        alert("操作太頻繁!");
+        swal("操作太頻繁!", "", "warning");
         return;
       }
-      const signOutFlag = this.notify ? true : confirm("確定要取消通知嗎?");
-      if (!signOutFlag) return;
-      this.locked = true;
-      firebase
-        .database()
-        .ref("member/" + this.userID + "/notify")
-        .set(this.notify);
-      this.handlerLogs("Modify", "System", "Notify", this.notify);
-      alert("通知狀態修改成功!");
-      this.locked = false;
+      swal({
+        title: "確定要取消通知嗎?",
+        icon: "info",
+        buttons: true,
+        dangerMode: true,
+      }).then((flag) => {
+        if (!flag) return;
+        this.locked = true;
+        firebase
+          .database()
+          .ref("member/" + this.userID + "/notify")
+          .set(this.notify);
+        this.handlerLogs("Modify", "System", "Notify", this.notify);
+        swal("通知狀態修改成功!", "", "success");
+        this.locked = false;
+      });
     },
   },
 };

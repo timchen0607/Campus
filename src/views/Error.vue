@@ -6,7 +6,6 @@
       <i class="icofont-check"></i>
       <i class="icofont-ban"></i>
       <i class="icofont-close"></i>
-      <i class="icofont-paper"></i>
     </div>
   </div>
 </template>

@@ -23,7 +23,7 @@
         </div>
       </div>
       <div v-else>
-        <div class="article-control">
+        <div class="main-control">
           <router-link class="btn" v-if="!loading" :to="'/' + groupID">
             <i class="icofont-swoosh-left"></i>返回文章列表
           </router-link>
@@ -50,7 +50,7 @@
           </h4>
           <pre class="article-content" v-text="article.content"></pre>
         </div>
-        <div class="article-control">
+        <div class="main-control">
           <span v-if="popCmt.likeCnt >= 5">熱門留言</span>
           <span></span>
           <div class="article-notify">
@@ -113,6 +113,7 @@
 
 <script>
 import router from "../router";
+import swal from "sweetalert";
 import {
   userCheck,
   groupCheck,
@@ -199,7 +200,7 @@ export default {
     handleNotify() {
       this.notifyCnt++;
       if (this.notifyCnt > 5) {
-        alert("操作太頻繁!");
+        swal("操作太頻繁!", "", "warning");
         return;
       }
       const TAN = this.article.notify;
@@ -219,7 +220,7 @@ export default {
     handleLikes(key, likes) {
       if (this.lastLiked === key) this.likedCnt++;
       if (this.likedCnt > 5) {
-        alert("操作太頻繁!");
+        swal("操作太頻繁!", "", "warning");
         return;
       }
       this.lastLiked = key;
@@ -235,24 +236,36 @@ export default {
       this.handlerLogs("Like", this.groupID, this.articleID, key);
     },
     handleArtDel() {
-      const delFlag = confirm("確定要刪除?刪除後無法恢復資料。");
-      if (!delFlag) return;
-      delFD("/article/" + this.groupID + "/" + this.articleID).then(() => {
-        this.handlerLogs("Delete", this.groupID, this.articleID);
-        alert("刪除成功!");
-        router.push("/" + this.groupID);
+      swal({
+        title: "確定要刪除?刪除後無法恢復資料。",
+        icon: "info",
+        buttons: true,
+        dangerMode: true,
+      }).then((flag) => {
+        if (!flag) return;
+        delFD("/article/" + this.groupID + "/" + this.articleID).then(() => {
+          this.handlerLogs("Delete", this.groupID, this.articleID);
+          swal("刪除成功!", "", "success");
+          router.push("/" + this.groupID);
+        });
       });
     },
     handleCmtDel(key) {
-      const delFlag = confirm("確定要刪除?刪除後無法恢復資料。");
-      if (!delFlag) return;
-      delFD("/comment/" + this.groupID + "/" + this.articleID + "/" + key).then(
-        () => {
+      swal({
+        title: "確定要刪除?刪除後無法恢復資料。",
+        icon: "info",
+        buttons: true,
+        dangerMode: true,
+      }).then((flag) => {
+        if (!flag) return;
+        delFD(
+          "/comment/" + this.groupID + "/" + this.articleID + "/" + key
+        ).then(() => {
           this.handlerLogs("Delete", this.groupID, this.articleID, key);
-          alert("刪除成功!");
+          swal("刪除成功!", "", "success");
           router.push("/" + this.groupID);
-        }
-      );
+        });
+      });
     },
   },
 };
@@ -274,11 +287,6 @@ export default {
 }
 
 .article {
-  &-control {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
   &-main {
     margin: 1rem 0;
   }
